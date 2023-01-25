@@ -6,7 +6,7 @@ We are proud to finally announce our official partnership with Starbucks coffee.
 
 ### Features:
 
-- Based on Java, Javascript, and Python
+- Based on Java, Javascript, HTML, Swift and Python
 - Object Oriented
 - String concatination
 - static and dynamic typing
