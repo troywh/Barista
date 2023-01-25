@@ -174,7 +174,7 @@ function isDivisibleByB(a, b){
 <td>
     
 ```
-captainisDivisibleByB(pump a, pump b) -> pump { 
+order isDivisibleByB(pump a, pump b) -> pump { 
    serve a mod b is equal to 0;
 }
 ```
