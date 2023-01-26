@@ -2,7 +2,7 @@
 
 We are proud to finally announce our official partnership with Starbucks coffee. After long talks and intense deliberation we agree that Starbucks baristas all over the country deserve something for themselves. Thats why today we are introducing Barista(trademark pending) a language for the best brewers of the best coffee in the world. Barista is meant to serve as an easy to learn entry into the programming world. It is based on terminology that every starbucks employee is already deeply familiar with. We hope that after Barista there will be one less hurdle for the average barista who loves to program.
 
-### Written by [Troy](github here), [Berk](github here), [CJ](github here), [Xan](github here), and [Betram Lalusha](github link here)
+### Written by [Troy](github here), [Berk](github here), [CJ](github here), [Xan](https://github.com/Xan-22), and [Betram Lalusha](github link here)
 
 ### Features:
 
