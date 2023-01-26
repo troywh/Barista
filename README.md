@@ -34,10 +34,6 @@ We are proud to finally announce our official partnership with Starbucks coffee.
     <td>pumps</td>
   </tr>
   <tr>
-    <td>Number</td>
-    <td>doubloon</td>
-  </tr>
-  <tr>
     <td>object/class</td>
     <td>item</td>
   </tr>
