@@ -23,7 +23,7 @@ Barista {
             | Exp6
   Exp6      = Exp7 "**" Exp6                          -- binary
             | Exp7
-  Exp7      = num
+  Exp7      = pumps
             | true
             | false
             | Call
@@ -41,7 +41,7 @@ Barista {
   false     = "false" ~idchar
   print     = "print" ~idchar
   keyword   = let | function | while | true | false
-  num       = digit+ ("." digit+)? (("E" | "e") ("+" | "-")? digit+)?
+  pumps     = digit+ ("." digit+)? (("E" | "e") ("+" | "-")? digit+)?
   id        = ~keyword letter idchar*
   idchar    = letter | digit | "_"
   space    += "//" (~"\n" any)*                       -- comment
