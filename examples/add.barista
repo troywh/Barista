@@ -1,4 +1,4 @@
-pump x = 8;
-pump y = 10;
-pump sum = x + y;
+let x = 8;
+let y = 10;
+let sum = x + y;
 print(sum);

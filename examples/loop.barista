@@ -1,5 +1,5 @@
-pump count = 0;
+let count = 0;
 while(count < 10) {
     print(count);
-    count++;
+    count = count + 1;
 }
