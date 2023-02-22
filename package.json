@@ -11,14 +11,14 @@
     "type": "git",
     "url": "git+https://github.com/troywh/Barista.git"
   },
-  "author": "Betram Lalusha, Troy, Xan, Berke, Cj",
+  "author": "Betram Lalusha, Troy, Michail Mavromatis, Berke, Cj",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/troywh/Barista/issues"
   },
   "homepage": "https://github.com/troywh/Barista#readme",
   "devDependencies": {
-    "c8": "^7.12.0",
+    "c8": "^7.13.0",
     "mocha": "^10.2.0"
   },
   "dependencies": {
