@@ -156,9 +156,9 @@ export default function analyze(sourceCode) {
     },
   })
 
-  for (const [name, entity] of Object.entries(core.standardLibrary)) {
-    context.locals.set(name, entity)
-  }
+  // for (const [name, entity] of Object.entries(core.standardLibrary)) {
+  //   context.locals.set(name, entity)
+  // }
   const match = baristaGrammar.match(sourceCode)
   if (!match.succeeded()) error(match.message)
   return analyzer(match).rep()
