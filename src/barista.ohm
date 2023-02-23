@@ -11,9 +11,8 @@ Barista {
   Serve = (serve (Exp)?)
   
   Assignment  =  Exp type id					-- vardec
-  			  | Increment                  -- increment
+  			      | add Exp to id                  -- increment
               | (this)? id "=" Exp                -- plain
-  Increment = add Exp to id
   ClassDec = item id "{" Statement* "}"
 
   Exp       = ("-" | "!") Exp7                        -- unary
