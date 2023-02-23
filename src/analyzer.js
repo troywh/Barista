@@ -12,29 +12,14 @@ function error(message, node) {
   throw new Error(message)
 }
 
-function check(condition, message, node) {
-  if (!condition) error(message, node)
-}
-
 export default function analyze(sourceCode) {
   const analyzer = baristaGrammar.createSemantics().addOperation("rep", {
     Program(body) {
       return new core.Program(body.rep())
     },
-    Statement_fundec(
-      _fun,
-      id,
-      _open,
-      params,
-      _close,
-      _equals,
-      body,
-      _semicolon
-    ) {
+    Statement_fundec(_fun, id, _open, params, _close, _equals, body) {
       params = params.asIteration().children
       const fun = new core.Function(id.sourceString, params.length, true)
-      // Add the function to the context before analyzing the body, because
-      // we want to allow functions to be recursive
       context.add(id.sourceString, fun, id)
       context = new Context(context)
       const paramsRep = params.map((p) => {
@@ -45,6 +30,13 @@ export default function analyze(sourceCode) {
       const bodyRep = body.rep()
       context = context.parent
       return new core.FunctionDeclaration(fun, paramsRep, bodyRep)
+    },
+    Statement_ifstmt(_if, test, consequent, _else, alternate) {
+      return new core.Statement_ifstmt(
+        test.rep(),
+        consequent.rep(),
+        alternate.rep()
+      )
     },
     Statement_assign(id, _eq, expression) {
       const target = id.rep()
@@ -57,7 +49,7 @@ export default function analyze(sourceCode) {
     Statement_while(_blend, _while, test, body) {
       return new core.WhileStatement(test.rep(), body.rep())
     },
-    Assignment_vardec(initializer, _type, id,) {
+    Assignment_vardec(initializer, _type, id) {
       const initializerRep = initializer.rep()
       const variable = new core.Variable(id.sourceString, false)
       context.add(id.sourceString, variable, id)
@@ -115,9 +107,8 @@ export default function analyze(sourceCode) {
       )
       return new core.Call(fun, argsRep)
     },
-    id(_first, _rest) {
-      // Designed to get here only for ids in expressions
-      return context.get(this.sourceString, core.Variable, this)
+    id(chars) {
+      return chars.sourceString
     },
     true(_) {
       return true
@@ -125,20 +116,11 @@ export default function analyze(sourceCode) {
     false(_) {
       return false
     },
-    pumps(_whole, _point, _fraction, _e, _sign, _exponent) {
+    numlit(_whole, _point, _fraction, _e, _sign, _exponent) {
       return Number(this.sourceString)
-    },
-    _terminal() {
-      return this.sourceString
-    },
-    _iter(...children) {
-      return children.map((child) => child.rep())
     },
   })
 
-  // for (const [name, entity] of Object.entries(core.standardLibrary)) {
-  //   context.locals.set(name, entity)
-  // }
   const match = baristaGrammar.match(sourceCode)
   if (!match.succeeded()) error(match.message)
   return analyzer(match).rep()
