@@ -1,18 +1,18 @@
 Barista {
   Program   = Statement+
   Statement = order id "(" Params ")" ("->" type)? Block          -- fundec
+            | print (Exp | strlit)                                -- print
             | if Exp Block (else if Exp Block)* (else Block)?     -- ifstmt
+            | Exp type id					                                -- vardec
+            | ClassDec						                                -- classdec
             | Assignment                                          -- assign
             | Call                                                -- call
-            | ClassDec						                                -- classdec
-            | print (Exp | strlit)                                -- print
             | blend while Exp Block                               -- while
             | blend Block until Exp                               -- dowhile
   Block     = "{" Statement* (Serve | stop)? "}"
   Serve     = serve (Exp)?
   
-  Assignment  =  Exp type id					                -- vardec
-  					  | BoolDec
+  Assignment  = BoolDec
   			      | add Exp to id                         -- increment
   				    | (this ".")? id "=" Exp                -- plain
   BoolDec 	  = (true | bool) id -- true
