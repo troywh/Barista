@@ -1,34 +1,37 @@
 Barista {
   Program   = Statement+
   Statement = order id "(" Params ")" ("->" type)? Block          -- fundec
-            | if Exp Block ((else if Exp Block)*)? (else Block)?  -- ifstmt
+            | if Exp Block (else if Exp Block)* (else Block)?     -- ifstmt
             | Assignment                                          -- assign
+            | Call                                                -- call
             | ClassDec						                                -- classdec
-            | print Exp                                           -- print
+            | print (Exp | strlit)                                -- print
             | blend while Exp Block                               -- while
-            | repeat until Exp Block                              -- repeat
+            | blend Block until Exp                               -- dowhile
   Block     = "{" Statement* (Serve | stop)? "}"
   Serve     = serve (Exp)?
   
-  Assignment  =  Exp type id					              -- vardec
-  			      | add Exp to id                       -- increment
-              | (this)? id "=" Exp                  -- plain
+  Assignment  =  Exp type id					                -- vardec
+  					  | BoolDec
+  			      | add Exp to id                         -- increment
+  				    | (this ".")? id "=" Exp                -- plain
+  BoolDec 	  = (true | bool) id -- true
+  					  | false id 			-- false
   ClassDec    = item id "{" Statement* "}"
 
   Exp         = ("-" | "!") Exp7                      -- unary
               | Exp1 "?" Exp1 ":" Exp                 -- ternary
-              | strlit                                -- string
               | Exp1
   Exp1        = Exp1 "||" Exp2                        -- binary
               | Exp2
   Exp2        = Exp2 "&&" Exp3                        -- binary
               | Exp3
-  Exp3        = Exp4 (lessthanequal
+  Exp3        = Exp4 (lessthaneq
                       | lessthan
                       | equal
                       | notequal
-                      | greaterthanequal
-                      | greaterthan) Exp4              -- binary
+                      | greaterthaneq
+                      | greaterthan) Exp4             -- binary
               | Exp4
   Exp4        = Exp4 "+" Exp5	-- plus
   			      | Exp4 "-" Exp5			-- subtract
@@ -41,9 +44,10 @@ Barista {
               | true
               | false
               | Call
-              | id                                    -- id
-              | this id								                -- thisid
+              | ((id | this) ".")? id                 -- id
               | "(" Exp ")"                           -- parens
+             
+  DotExp	= Exp "." id
 
   Call        = id "(" Args ")"
   Params      = ListOf<id, ",">
@@ -52,17 +56,18 @@ Barista {
   equal             = ("==" | "is equal to")
   notequal          = ("!=" | "is not equal to")
   lessthan          = ("<" | "is less than")
-  lessthanequal     = ("<=" | "is less than or equal to")
+  lessthaneq        = ("<=" | "is less than or equal to")
   greaterthan       = (">" | "is greater than")
-  greaterthanequal  = (">=" | "is greater than or equal to")
+  greaterthaneq     = (">=" | "is greater than or equal to")
   
-  type	        = id
+  type	        = id | bool
+  
   order         = "order" ~idchar
   while         = "while" ~idchar
   repeat        = "repeat" ~idchar
   until         = "until" ~idchar
-  true          = "true" ~idchar
-  false         = "false" ~idchar
+  true          = ("YES" | "Yes" | "yes") ~idchar
+  false         = ("NO" | "No" | "no") ~idchar
   print         = "print" ~idchar
   serve		      = "serve" ~idchar
   if	          = "if" ~idchar
@@ -73,12 +78,13 @@ Barista {
   to            = "to" ~idchar
   item          = "item" ~idchar
   this          = "this" ~idchar
+  bool          = "with" ~idchar
   comment       = "<comment>" | "</comment>"
   
-  keyword   = order | while | true | false | print | serve | if | else | blend | stop | repeat | until | add | to | item | this | comment
+  keyword   = order | while | true | false | print | serve | if | else | blend | stop | repeat | until | add | to | item | this | comment | bool
   numlit    = digit+ ("." digit+)? (("E" | "e") ("+" | "-")? digit+)?
   strlit		= "\"" (~"\"" (any))* "\""
   id        = ~keyword letter idchar*
   idchar    = letter | digit | "_"
-  space     += "<comment>" (~"</comment>" any)* "</comment>" -- comment
+  space     += "<comment>" (~"</comment>" any)* "</comment>"  -- comment
 }
