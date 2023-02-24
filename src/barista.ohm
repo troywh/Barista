@@ -1,84 +1,47 @@
 Barista {
   Program   = Statement+
-  Statement = order id "(" Params ")" ("->" type)? Block          -- fundec
-            | if Exp Block ((else if Exp Block)*)? (else Block)?  -- ifstmt
-            | Assignment                                          -- assign
-            | ClassDec						                                -- classdec
-            | print Exp                                           -- print
-            | blend while Exp Block                               -- while
-            | repeat until Exp Block                              -- repeat
-  Block     = "{" Statement* (Serve | stop)? "}"
-  Serve     = serve (Exp)?
-  
-  Assignment  =  Exp type id					              -- vardec
-  			      | add Exp to id                       -- increment
-              | (this)? id "=" Exp                  -- plain
-  ClassDec    = item id "{" Statement* "}"
+  Statement = let id "=" Exp ";"                      -- vardec
+            | function id "(" Params ")" "=" Exp ";"  -- fundec
+            | id "=" Exp ";"                          -- assign
+            | print Exp ";"                           -- print
+            | while Exp Block                         -- while
+  Block     = "{" Statement* "}"
 
-  Exp         = ("-" | "!") Exp7                      -- unary
-              | Exp1 "?" Exp1 ":" Exp                 -- ternary
-              | strlit                                -- string
-              | Exp1
-  Exp1        = Exp1 "||" Exp2                        -- binary
-              | Exp2
-  Exp2        = Exp2 "&&" Exp3                        -- binary
-              | Exp3
-  Exp3        = Exp4 (lessthanequal
-                      | lessthan
-                      | equal
-                      | notequal
-                      | greaterthanequal
-                      | greaterthan) Exp4              -- binary
-              | Exp4
-  Exp4        = Exp4 "+" Exp5	-- plus
-  			      | Exp4 "-" Exp5			-- subtract
-              | Exp5
-  Exp5        = Exp5 ("*" | "/" | "%") Exp6           -- binary
-              | Exp6
-  Exp6        = Exp7 "**" Exp6                        -- binary
-              | Exp7
-  Exp7        = numlit
-              | true
-              | false
-              | Call
-              | id                                    -- id
-              | this id								                -- thisid
-              | "(" Exp ")"                           -- parens
+  Exp       = ("-" | "!") Exp7                        -- unary
+            | Exp1 "?" Exp1 ":" Exp                   -- ternary
+            | Exp1
+  Exp1      = Exp1 "||" Exp2                          -- binary
+            | Exp2
+  Exp2      = Exp2 "&&" Exp3                          -- binary
+            | Exp3
+  Exp3      = Exp4 ("<="|"<"|"=="|"!="|">="|">") Exp4 -- binary
+            | Exp4
+  Exp4      = Exp4 ("+" | "-") Exp5                   -- binary
+            | Exp5
+  Exp5      = Exp5 ("*" | "/" | "%") Exp6             -- binary
+            | Exp6
+  Exp6      = Exp7 "**" Exp6                          -- binary
+            | Exp7
+  Exp7      = pumps
+            | true
+            | false
+            | Call
+            | id                                      -- id
+            | "(" Exp ")"                             -- parens
 
-  Call        = id "(" Args ")"
-  Params      = ListOf<id, ",">
-  Args        = ListOf<Exp, ",">
+  Call      = id "(" Args ")"
+  Params    = ListOf<id, ",">
+  Args      = ListOf<Exp, ",">
 
-  equal             = ("==" | "is equal to")
-  notequal          = ("!=" | "is not equal to")
-  lessthan          = ("<" | "is less than")
-  lessthanequal     = ("<=" | "is less than or equal to")
-  greaterthan       = (">" | "is greater than")
-  greaterthanequal  = (">=" | "is greater than or equal to")
-  
-  type	        = id
-  order         = "order" ~idchar
-  while         = "while" ~idchar
-  repeat        = "repeat" ~idchar
-  until         = "until" ~idchar
-  true          = "true" ~idchar
-  false         = "false" ~idchar
-  print         = "print" ~idchar
-  serve		      = "serve" ~idchar
-  if	          = "if" ~idchar
-  else          = "else" ~idchar
-  blend         = "blend" ~idchar
-  stop          = "stop" ~idchar
-  add           = "add" ~idchar
-  to            = "to" ~idchar
-  item          = "item" ~idchar
-  this          = "this" ~idchar
-  comment       = "<comment>" | "</comment>"
-  
-  keyword   = order | while | true | false | print | serve | if | else | blend | stop | repeat | until | add | to | item | this | comment
-  numlit    = digit+ ("." digit+)? (("E" | "e") ("+" | "-")? digit+)?
-  strlit		= "\"" (~"\"" (any))* "\""
+  let       = "let" ~idchar
+  function  = "function" ~idchar
+  while     = "while" ~idchar
+  true      = "true" ~idchar
+  false     = "false" ~idchar
+  print     = "print" ~idchar
+  keyword   = let | function | while | true | false
+  pumps     = digit+ ("." digit+)? (("E" | "e") ("+" | "-")? digit+)?
   id        = ~keyword letter idchar*
   idchar    = letter | digit | "_"
-  space     += "<comment>" (~"</comment>" any)* "</comment>" -- comment
+  space    += "//" (~"\n" any)*                       -- comment
 }
