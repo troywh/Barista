@@ -7,10 +7,10 @@ Barista {
             | order id "(" Params ")" FunReturn? Block            -- fundec
             | print (Exp | strlit)                                -- print
             | if Exp Block ElIf* (else Block)?                    -- ifstmt
-            | Exp type id					                                -- vardec
+            | Exp Type id					                                -- vardec
             | blend while Exp Block                               -- while
             | blend Block until Exp                               -- dowhile
-  FunReturn = "->" type
+  FunReturn = "->" Type
   ElIf      = else if Exp Block
   Block     = "{" Statement* (Serve | stop)? "}"
   Serve     = serve (Exp)?
@@ -21,7 +21,7 @@ Barista {
   					  | false id 			-- false
   ClassDec    = item id "{" Statement* "}"
 
-  Exp         = ("-" | "!") LitExp                      -- unary
+  Exp         = ("-" | "!") Term                        -- unary
               | OrExp "?" OrExp ":" Exp                 -- ternary
               | OrExp
   OrExp       = OrExp "||" AndExp                       -- binary
@@ -39,9 +39,9 @@ Barista {
               | MulExp
   MulExp      = MulExp ("*" | "/" | "%") ExpExp         -- binary
               | ExpExp
-  ExpExp      = LitExp "**" ExpExp                      -- binary
-              | LitExp
-  LitExp      = numlit
+  ExpExp      = Term "**" ExpExp                        -- binary
+              | Term
+  Term        = numlit
               | true
               | false
               | Call
@@ -52,26 +52,26 @@ Barista {
   Params      = ListOf<id, ",">
   Args        = ListOf<Exp, ",">
   
-  type	        = id | bool
+  Type	      = id | bool
   
-  order         = "order" ~idchar
-  while         = "while" ~idchar
-  repeat        = "repeat" ~idchar
-  until         = "until" ~idchar
-  true          = ("YES" | "Yes" | "yes") ~idchar
-  false         = ("NO" | "No" | "no") ~idchar
-  print         = "print" ~idchar
-  serve		      = "serve" ~idchar
-  if	          = "if" ~idchar
-  else          = "else" ~idchar
-  blend         = "blend" ~idchar
-  stop          = "stop" ~idchar
-  add           = "add" ~idchar
-  to            = "to" ~idchar
-  item          = "item" ~idchar
-  this          = "this" ~idchar
-  bool          = "with" ~idchar
-  comment       = "<comment>" | "</comment>"
+  order       = "order" ~idchar
+  while       = "while" ~idchar
+  repeat      = "repeat" ~idchar
+  until       = "until" ~idchar
+  true        = ("YES" | "Yes" | "yes") ~idchar
+  false       = ("NO" | "No" | "no") ~idchar
+  print       = "print" ~idchar
+  serve		    = "serve" ~idchar
+  if	        = "if" ~idchar
+  else        = "else" ~idchar
+  blend       = "blend" ~idchar
+  stop        = "stop" ~idchar
+  add         = "add" ~idchar
+  to          = "to" ~idchar
+  item        = "item" ~idchar
+  this        = "this" ~idchar
+  bool        = "with" ~idchar
+  comment     = "<comment>" | "</comment>"
   
   keyword   = order | while | true | false | print | serve | if | else | blend | stop | repeat | until | add | to | item | this | comment | bool
   numlit    = digit+ ("." digit+)?

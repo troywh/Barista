@@ -90,20 +90,11 @@ export default function analyze(sourceCode) {
     Exp_ternary(exp1, _questionMark, exp2, _colon, exp3) {
       return new core.TernaryExpression(exp1.rep(), exp2.rep(), exp3.rep())
     },
-    Exp(expression) {
-      return new expression.rep()
-    },
     OrExp_binary(left, op, right) {
       return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
     },
-    OrExp(expression) {
-      return expression.rep()
-    },
     AndExp_binary(left, op, right) {
       return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
-    },
-    AndExp(expression) {
-      return new expression.rep()
     },
     CmpExp_binary(left, op, right) {
       return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
@@ -111,25 +102,16 @@ export default function analyze(sourceCode) {
     AddExp_binary(left, op, right) {
       return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
     },
-    AddExp(expression) {
-      return new expression.rep()
-    },
     MulExp_binary(left, op, right) {
       return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
-    },
-    MulExp(expression) {
-      return new expression.rep()
     },
     ExpExp_binary(left, op, right) {
       return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
     },
-    LitExp(expression) {
-      return new expression.rep()
-    },
-    LitExp_id(_parent, _dot, id) {
+    Term_id(_parent, _dot, id) {
       return new id.rep()
     },
-    LitExp_parens(_left, expression, _right) {
+    Term_parens(_left, expression, _right) {
       return new expression.rep()
     },
 
@@ -143,18 +125,27 @@ export default function analyze(sourceCode) {
       return new core.Arguments(ls)
     },
 
-    type(type) {
+    Type(type) {
       return new type.rep()
     },
 
+    true(_) {
+      return true
+    },
+    false(_) {
+      return false
+    },
     numlit(_leading, _dot, _fractional) {
-      return this.sourceString
+      return Number(this.sourceString)
     },
     strlit(_open, chars, _close) {
-      return chars.sourceString
+      return new core.StringLiteral(chars.sourceString)
     },
     id(chars) {
       return chars.sourceString
+    },
+    _terminal() {
+      return this.sourceString
     },
     _iter(...children) {
       return children.map((child) => child.rep())

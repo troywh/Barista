@@ -7,7 +7,7 @@ export class Program {
 }
 
 export class FunctionDeclaration {
-  constructor(fun, params, type, body) {
+  constructor(fun, params, _type, body) {
     Object.assign(this, { fun, params, body })
   }
 }
@@ -120,7 +120,7 @@ Program.prototype[util.inspect.custom] = function () {
 }
 
 export class Type {
-  static INT = new Type("pumps")
-  static STRING = new Type("name")
+  static INT = new Type("pump")
+  static STRING = new Type("string")
   static BOOLEAN = new Type("with")
 }
