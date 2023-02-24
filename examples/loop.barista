@@ -1,5 +1,6 @@
 5 pumps count
-blend while count < 10 {
+1 pump y
+blend while count less than 10 {
     print count
     count = count + 1
     add 2 to y

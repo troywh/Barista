@@ -1,25 +1,22 @@
 Barista {
   Program   = Statement+
   Statement = Assignment
-            | ClassDec
             | Call
-            | BoolDec
-            | order id "(" Params ")" FunReturn? Block            -- fundec
-            | print (Exp | strlit)                                -- print
-            | if Exp Block ElIf* (else Block)?                    -- ifstmt
-            | Exp Type id					                                -- vardec
-            | blend while Exp Block                               -- while
-            | blend Block until Exp                               -- dowhile
+            | serve (Exp)?										          -- return
+            | print (Exp | strlit)                      -- print
+            | if Exp Block ElIf* (else Block)?          -- ifstmt
+            | Exp Type id				                        -- vardec
+            | true | false id					                  -- booldec
+            | order id "(" Params ")" FunReturn? Block  -- fundec
+            | item id "{" Statement* "}"						    -- classdec
+            | blend while Exp Block                     -- while
+            | blend Block until Exp                     -- dowhile
   FunReturn = "->" Type
   ElIf      = else if Exp Block
-  Block     = "{" Statement* (Serve | stop)? "}"
-  Serve     = serve (Exp)?
+  Block     = "{" Statement* "}"
   
   Assignment  = (this ".")? id "=" Exp                  -- plain
               | add Exp to id                           -- increment
-  BoolDec 	  = (true | bool) id -- true
-  					  | false id 			-- false
-  ClassDec    = item id "{" Statement* "}"
 
   Exp         = ("-" | "!") Term                        -- unary
               | OrExp "?" OrExp ":" Exp                 -- ternary

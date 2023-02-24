@@ -7,8 +7,8 @@ export class Program {
 }
 
 export class FunctionDeclaration {
-  constructor(fun, params, _type, body) {
-    Object.assign(this, { fun, params, body })
+  constructor(fun, params, type, body) {
+    Object.assign(this, { fun, params, type, body })
   }
 }
 
@@ -26,7 +26,7 @@ export class Conditional {
 
 export class VariableDeclaration {
   constructor(initializer, type, variable) {
-    Object.assign(this, { initializer, variable })
+    Object.assign(this, { initializer, type, variable })
   }
 }
 
@@ -73,8 +73,8 @@ export class UnaryExpression {
 }
 
 export class TernaryExpression {
-  constructor(left, middle, right) {
-    Object.assign(this, { left, middle, right })
+  constructor(test, consequent, alternate) {
+    Object.assign(this, { test, consequent, alternate })
   }
 }
 
@@ -87,6 +87,12 @@ export class Parameters {
 export class Arguments {
   constructor(params) {
     Object.assign(this, { params })
+  }
+}
+
+export class StringLiteral {
+  constructor(contents) {
+    this.contents = contents
   }
 }
 
@@ -120,7 +126,7 @@ Program.prototype[util.inspect.custom] = function () {
 }
 
 export class Type {
-  static INT = new Type("pump")
+  static INT = new Type("int")
   static STRING = new Type("string")
-  static BOOLEAN = new Type("with")
+  static BOOLEAN = new Type("bool")
 }
