@@ -12,67 +12,14 @@ function error(message, node) {
   throw new Error(message)
 }
 
-function check(condition, message, node) {
-  if (!condition) error(message, node)
-}
-
-class Context {
-  constructor(parent = null) {
-    this.parent = parent
-    this.locals = new Map()
-  }
-  add(name, entity, node) {
-    check(!this.locals.has(name), `${name} has already been declared`, node)
-    this.locals.set(name, entity)
-    return entity
-  }
-  get(name, expectedType, node) {
-    let entity
-    for (let context = this; context; context = context.parent) {
-      entity = context.locals.get(name)
-      if (entity) break
-    }
-    check(entity, `${name} has not been declared`, node)
-    check(
-      entity.constructor === expectedType,
-      `${name} was expected to be a ${expectedType.name}`,
-      node
-    )
-    return entity
-  }
-}
-
 export default function analyze(sourceCode) {
-  let context = new Context()
-
   const analyzer = baristaGrammar.createSemantics().addOperation("rep", {
     Program(body) {
       return new core.Program(body.rep())
     },
-    Statement_vardec(_let, id, _eq, initializer, _semicolon) {
-      // Analyze the initializer *before* adding the variable to the context,
-      // because we don't want the variable to come into scope until after
-      // the declaration. That is, "let x=x;" should be an error (unless x
-      // was already defined in an outer scope.)
-      const initializerRep = initializer.rep()
-      const variable = new core.Variable(id.sourceString, false)
-      context.add(id.sourceString, variable, id)
-      return new core.VariableDeclaration(variable, initializerRep)
-    },
-    Statement_fundec(
-      _fun,
-      id,
-      _open,
-      params,
-      _close,
-      _equals,
-      body,
-      _semicolon
-    ) {
+    Statement_fundec(_fun, id, _open, params, _close, _equals, body) {
       params = params.asIteration().children
       const fun = new core.Function(id.sourceString, params.length, true)
-      // Add the function to the context before analyzing the body, because
-      // we want to allow functions to be recursive
       context.add(id.sourceString, fun, id)
       context = new Context(context)
       const paramsRep = params.map((p) => {
@@ -84,16 +31,41 @@ export default function analyze(sourceCode) {
       context = context.parent
       return new core.FunctionDeclaration(fun, paramsRep, bodyRep)
     },
-    Statement_assign(id, _eq, expression, _semicolon) {
+    Statement_ifstmt(_if, test, consequent, _else, alternate) {
+      return new core.Statement_ifstmt(
+        test.rep(),
+        consequent.rep(),
+        alternate.rep()
+      )
+    },
+    Statement_assign(id, _eq, expression) {
       const target = id.rep()
       check(!target.readOnly, `${target.name} is read only`, id)
       return new core.Assignment(target, expression.rep())
     },
-    Statement_print(_print, argument, _semicolon) {
+    Statement_print(_print, argument) {
       return new core.PrintStatement(argument.rep())
     },
-    Statement_while(_while, test, body) {
+    Statement_while(_blend, _while, test, body) {
       return new core.WhileStatement(test.rep(), body.rep())
+    },
+    Assignment_vardec(initializer, _type, id) {
+      const initializerRep = initializer.rep()
+      const variable = new core.Variable(id.sourceString, false)
+      context.add(id.sourceString, variable, id)
+      return new core.VariableDeclaration(variable, initializerRep)
+    },
+    Assignment_increment(_add, initializer, _to, id) {
+      const initializerRep = initializer.rep()
+      const variable = new core.Variable(id.sourceString, false)
+      context.add(id.sourceString, variable, id)
+      return new core.VariableDeclaration(variable, initializerRep)
+    },
+    Assignment_plain(id, _eq, initializer) {
+      const initializerRep = initializer.rep()
+      const variable = new core.Variable(id.sourceString, false)
+      context.add(id.sourceString, variable, id)
+      return new core.VariableDeclaration(variable, initializerRep)
     },
     Block(_open, body, _close) {
       return body.rep()
@@ -135,9 +107,8 @@ export default function analyze(sourceCode) {
       )
       return new core.Call(fun, argsRep)
     },
-    id(_first, _rest) {
-      // Designed to get here only for ids in expressions
-      return context.get(this.sourceString, core.Variable, this)
+    id(chars) {
+      return chars.sourceString
     },
     true(_) {
       return true
@@ -145,20 +116,11 @@ export default function analyze(sourceCode) {
     false(_) {
       return false
     },
-    pumps(_whole, _point, _fraction, _e, _sign, _exponent) {
+    numlit(_whole, _point, _fraction, _e, _sign, _exponent) {
       return Number(this.sourceString)
-    },
-    _terminal() {
-      return this.sourceString
-    },
-    _iter(...children) {
-      return children.map((child) => child.rep())
     },
   })
 
-  // for (const [name, entity] of Object.entries(core.standardLibrary)) {
-  //   context.locals.set(name, entity)
-  // }
   const match = baristaGrammar.match(sourceCode)
   if (!match.succeeded()) error(match.message)
   return analyzer(match).rep()
