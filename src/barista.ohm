@@ -1,47 +1,82 @@
 Barista {
   Program   = Statement+
-  Statement = let id "=" Exp ";"                      -- vardec
-            | function id "(" Params ")" "=" Exp ";"  -- fundec
-            | id "=" Exp ";"                          -- assign
-            | print Exp ";"                           -- print
-            | while Exp Block                         -- while
-  Block     = "{" Statement* "}"
-
-  Exp       = ("-" | "!") Exp7                        -- unary
-            | Exp1 "?" Exp1 ":" Exp                   -- ternary
-            | Exp1
-  Exp1      = Exp1 "||" Exp2                          -- binary
-            | Exp2
-  Exp2      = Exp2 "&&" Exp3                          -- binary
-            | Exp3
-  Exp3      = Exp4 ("<="|"<"|"=="|"!="|">="|">") Exp4 -- binary
-            | Exp4
-  Exp4      = Exp4 ("+" | "-") Exp5                   -- binary
-            | Exp5
-  Exp5      = Exp5 ("*" | "/" | "%") Exp6             -- binary
-            | Exp6
-  Exp6      = Exp7 "**" Exp6                          -- binary
-            | Exp7
-  Exp7      = pumps
-            | true
-            | false
+  Statement = Assignment
+            | ClassDec
             | Call
-            | id                                      -- id
-            | "(" Exp ")"                             -- parens
+            | BoolDec
+            | order id "(" Params ")" FunReturn? Block            -- fundec
+            | print (Exp | strlit)                                -- print
+            | if Exp Block ElIf* (else Block)?                    -- ifstmt
+            | Exp type id					                                -- vardec
+            | blend while Exp Block                               -- while
+            | blend Block until Exp                               -- dowhile
+  FunReturn = "->" type
+  ElIf      = else if Exp Block
+  Block     = "{" Statement* (Serve | stop)? "}"
+  Serve     = serve (Exp)?
+  
+  Assignment  = (this ".")? id "=" Exp                  -- plain
+              | add Exp to id                           -- increment
+  BoolDec 	  = (true | bool) id -- true
+  					  | false id 			-- false
+  ClassDec    = item id "{" Statement* "}"
 
-  Call      = id "(" Args ")"
-  Params    = ListOf<id, ",">
-  Args      = ListOf<Exp, ",">
+  Exp         = ("-" | "!") LitExp                      -- unary
+              | OrExp "?" OrExp ":" Exp                 -- ternary
+              | OrExp
+  OrExp       = OrExp "||" AndExp                       -- binary
+              | AndExp
+  AndExp      = AndExp "&&" CmpExp                      -- binary
+              | CmpExp
+  CmpExp      = AddExp ("less than equal to"
+                      | "less than"
+                      | "not equal to"
+                      | "equal to"
+                      | "greater than equal to"
+                      | "greater than") AddExp          -- binary
+              | AddExp
+  AddExp      = AddExp ("+" | "-") MulExp	              -- binary
+              | MulExp
+  MulExp      = MulExp ("*" | "/" | "%") ExpExp         -- binary
+              | ExpExp
+  ExpExp      = LitExp "**" ExpExp                      -- binary
+              | LitExp
+  LitExp      = numlit
+              | true
+              | false
+              | Call
+              | ((id | this) ".")? id                   -- id
+              | "(" Exp ")"                             -- parens
 
-  let       = "let" ~idchar
-  function  = "function" ~idchar
-  while     = "while" ~idchar
-  true      = "true" ~idchar
-  false     = "false" ~idchar
-  print     = "print" ~idchar
-  keyword   = let | function | while | true | false
-  pumps     = digit+ ("." digit+)? (("E" | "e") ("+" | "-")? digit+)?
-  id        = ~keyword letter idchar*
+  Call        = id "(" Args ")"
+  Params      = ListOf<id, ",">
+  Args        = ListOf<Exp, ",">
+  
+  type	        = id | bool
+  
+  order         = "order" ~idchar
+  while         = "while" ~idchar
+  repeat        = "repeat" ~idchar
+  until         = "until" ~idchar
+  true          = ("YES" | "Yes" | "yes") ~idchar
+  false         = ("NO" | "No" | "no") ~idchar
+  print         = "print" ~idchar
+  serve		      = "serve" ~idchar
+  if	          = "if" ~idchar
+  else          = "else" ~idchar
+  blend         = "blend" ~idchar
+  stop          = "stop" ~idchar
+  add           = "add" ~idchar
+  to            = "to" ~idchar
+  item          = "item" ~idchar
+  this          = "this" ~idchar
+  bool          = "with" ~idchar
+  comment       = "<comment>" | "</comment>"
+  
+  keyword   = order | while | true | false | print | serve | if | else | blend | stop | repeat | until | add | to | item | this | comment | bool
+  numlit    = digit+ ("." digit+)?
+  strlit		= "\"" (~"\"" (any))* "\""
+  id        = ~keyword idchar+
   idchar    = letter | digit | "_"
-  space    += "//" (~"\n" any)*                       -- comment
+  space     += "<comment>" (~"</comment>" any)* "</comment>"  -- comment
 }

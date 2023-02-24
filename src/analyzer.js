@@ -15,109 +15,149 @@ function error(message, node) {
 export default function analyze(sourceCode) {
   const analyzer = baristaGrammar.createSemantics().addOperation("rep", {
     Program(body) {
-      return new core.Program(body.rep())
+      return new core.Program(body.children.map((s) => s.rep()))
     },
-    Statement_fundec(_fun, id, _open, params, _close, _equals, body) {
-      params = params.asIteration().children
-      const fun = new core.Function(id.sourceString, params.length, true)
-      context.add(id.sourceString, fun, id)
-      context = new Context(context)
-      const paramsRep = params.map((p) => {
-        let variable = new core.Variable(p.sourceString, true)
-        context.add(p.sourceString, variable, p)
-        return variable
-      })
-      const bodyRep = body.rep()
-      context = context.parent
-      return new core.FunctionDeclaration(fun, paramsRep, bodyRep)
+    Statement(statement) {
+      return new core.AssignmentStatement(statement.rep())
     },
-    Statement_ifstmt(_if, test, consequent, _else, alternate) {
-      return new core.Statement_ifstmt(
-        test.rep(),
-        consequent.rep(),
-        alternate.rep()
+    Statement_fundec(_order, id, _left, params, _right, type, body) {
+      return new core.FunctionDeclaration(
+        id.rep(),
+        params.rep(),
+        type.rep(),
+        body.rep()
       )
-    },
-    Statement_assign(id, _eq, expression) {
-      const target = id.rep()
-      check(!target.readOnly, `${target.name} is read only`, id)
-      return new core.Assignment(target, expression.rep())
     },
     Statement_print(_print, argument) {
       return new core.PrintStatement(argument.rep())
     },
+    Statement_ifstmt(_if, test, consequent, elif, _else, alternate) {
+      return new core.Conditional(
+        test.rep(),
+        consequent.rep(),
+        elif.rep(),
+        alternate.rep()
+      )
+    },
+    Statement_vardec(expression, type, id) {
+      return new core.VariableDeclaration(
+        expression.rep(),
+        type.rep(),
+        id.rep()
+      )
+    },
     Statement_while(_blend, _while, test, body) {
       return new core.WhileStatement(test.rep(), body.rep())
     },
-    Assignment_vardec(initializer, _type, id) {
-      const initializerRep = initializer.rep()
-      const variable = new core.Variable(id.sourceString, false)
-      context.add(id.sourceString, variable, id)
-      return new core.VariableDeclaration(variable, initializerRep)
+    Statement_dowhile(_blend, body, _until, test) {
+      return new core.DoWhileStatement(test.rep(), body.rep())
     },
-    Assignment_increment(_add, initializer, _to, id) {
-      const initializerRep = initializer.rep()
-      const variable = new core.Variable(id.sourceString, false)
-      context.add(id.sourceString, variable, id)
-      return new core.VariableDeclaration(variable, initializerRep)
+
+    FunReturn(_arrow, type) {
+      return new type.rep()
     },
-    Assignment_plain(id, _eq, initializer) {
-      const initializerRep = initializer.rep()
-      const variable = new core.Variable(id.sourceString, false)
-      context.add(id.sourceString, variable, id)
-      return new core.VariableDeclaration(variable, initializerRep)
+    ElIf(_else, _if, test, consequent) {
+      return new core.Conditional(test.rep(), consequent.rep())
     },
-    Block(_open, body, _close) {
-      return body.rep()
+    Block(_left, body, _serve, _right) {
+      return new body.rep()
     },
-    Exp_unary(op, operand) {
-      return new core.UnaryExpression(op.rep(), operand.rep())
+    Serve(_serve, value) {
+      return new value.rep()
     },
-    Exp_ternary(test, _questionMark, consequent, _colon, alternate) {
-      return new core.Conditional(test.rep(), consequent.rep(), alternate.rep())
+
+    Assignment_increment(_add, expression, _to, id) {
+      return new core.AssignmentStatement(id.rep(), expression.rep())
     },
-    Exp1_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+    Assignment_plain(_this, _dot, id, _equals, expression) {
+      return new core.AssignmentStatement(id.rep(), expression.rep())
     },
-    Exp2_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+
+    BoolDec_true(value, id) {
+      return new core.VariableDeclaration(id.rep(), value.rep())
     },
-    Exp3_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+    BoolDec_false(value, id) {
+      return new core.VariableDeclaration(id.rep(), value.rep())
     },
-    Exp4_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+
+    ClassDec(_item, id, _left, body, _right) {
+      return new core.ClassDeclaration(id.rep(), body.rep())
     },
-    Exp5_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+
+    Exp_unary(op, expression) {
+      return new core.UnaryExpression(op.rep(), expression.rep())
     },
-    Exp6_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+    Exp_ternary(exp1, _questionMark, exp2, _colon, exp3) {
+      return new core.TernaryExpression(exp1.rep(), exp2.rep(), exp3.rep())
     },
-    Exp7_parens(_open, expression, _close) {
+    Exp(expression) {
+      return new expression.rep()
+    },
+    OrExp_binary(left, op, right) {
+      return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
+    },
+    OrExp(expression) {
       return expression.rep()
     },
-    Call(callee, left, args, _right) {
-      const fun = context.get(callee.sourceString, core.Function, callee)
-      const argsRep = args.asIteration().rep()
-      check(
-        argsRep.length === fun.paramCount,
-        `Expected ${fun.paramCount} arg(s), found ${argsRep.length}`,
-        left
-      )
-      return new core.Call(fun, argsRep)
+    AndExp_binary(left, op, right) {
+      return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
+    },
+    AndExp(expression) {
+      return new expression.rep()
+    },
+    CmpExp_binary(left, op, right) {
+      return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
+    },
+    AddExp_binary(left, op, right) {
+      return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
+    },
+    AddExp(expression) {
+      return new expression.rep()
+    },
+    MulExp_binary(left, op, right) {
+      return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
+    },
+    MulExp(expression) {
+      return new expression.rep()
+    },
+    ExpExp_binary(left, op, right) {
+      return new core.BinaryExpression(op.sourceString, left.rep(), right.rep())
+    },
+    LitExp(expression) {
+      return new expression.rep()
+    },
+    LitExp_id(_parent, _dot, id) {
+      return new id.rep()
+    },
+    LitExp_parens(_left, expression, _right) {
+      return new expression.rep()
+    },
+
+    Call(id, _left, args, _right) {
+      return new core.Call(id, args)
+    },
+    Params(ls) {
+      return new core.Parameters(ls)
+    },
+    Args(ls) {
+      return new core.Arguments(ls)
+    },
+
+    type(type) {
+      return new type.rep()
+    },
+
+    numlit(_leading, _dot, _fractional) {
+      return this.sourceString
+    },
+    strlit(_open, chars, _close) {
+      return chars.sourceString
     },
     id(chars) {
       return chars.sourceString
     },
-    true(_) {
-      return true
-    },
-    false(_) {
-      return false
-    },
-    numlit(_whole, _point, _fraction, _e, _sign, _exponent) {
-      return Number(this.sourceString)
+    _iter(...children) {
+      return children.map((child) => child.rep())
     },
   })
 
