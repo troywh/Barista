@@ -6,27 +6,9 @@ export class Program {
   }
 }
 
-export class VariableDeclaration {
-  constructor(variable, initializer) {
-    Object.assign(this, { variable, initializer })
-  }
-}
-
 export class FunctionDeclaration {
-  constructor(fun, params, body) {
+  constructor(fun, params, type, body) {
     Object.assign(this, { fun, params, body })
-  }
-}
-
-export class Assignment {
-  constructor(target, source) {
-    Object.assign(this, { target, source })
-  }
-}
-
-export class WhileStatement {
-  constructor(test, body) {
-    Object.assign(this, { test, body })
   }
 }
 
@@ -36,15 +18,45 @@ export class PrintStatement {
   }
 }
 
+export class Conditional {
+  constructor(test, consequent, alternates, final) {
+    Object.assign(this, { test, consequent, alternates, final })
+  }
+}
+
+export class VariableDeclaration {
+  constructor(initializer, type, variable) {
+    Object.assign(this, { initializer, variable })
+  }
+}
+
+export class ClassDeclaration {
+  constructor(name, body) {
+    Object.assign(this, { name, body })
+  }
+}
+
+export class AssignmentStatement {
+  constructor(target, source) {
+    Object.assign(this, { target, source })
+  }
+}
+
 export class Call {
   constructor(callee, args) {
     Object.assign(this, { callee, args })
   }
 }
 
-export class Conditional {
-  constructor(test, consequent, alternate) {
-    Object.assign(this, { test, consequent, alternate })
+export class WhileStatement {
+  constructor(test, body) {
+    Object.assign(this, { test, body })
+  }
+}
+
+export class DoWhileStatement {
+  constructor(test, body) {
+    Object.assign(this, { test, body })
   }
 }
 
@@ -60,15 +72,21 @@ export class UnaryExpression {
   }
 }
 
-export class Variable {
-  constructor(name, readOnly) {
-    Object.assign(this, { name, readOnly })
+export class TernaryExpression {
+  constructor(left, middle, right) {
+    Object.assign(this, { left, middle, right })
   }
 }
 
-export class Function {
-  constructor(name, paramCount, readOnly) {
-    Object.assign(this, { name, paramCount, readOnly })
+export class Parameters {
+  constructor(params) {
+    Object.assign(this, { params })
+  }
+}
+
+export class Arguments {
+  constructor(params) {
+    Object.assign(this, { params })
   }
 }
 
@@ -104,5 +122,5 @@ Program.prototype[util.inspect.custom] = function () {
 export class Type {
   static INT = new Type("pumps")
   static STRING = new Type("name")
-  static BOOLEAN = new Type("whipped cream")
+  static BOOLEAN = new Type("with")
 }

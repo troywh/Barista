@@ -1,64 +1,56 @@
 Barista {
   Program   = Statement+
-  Statement = order id "(" Params ")" ("->" type)? Block          -- fundec
+  Statement = Assignment
+            | ClassDec
+            | Call
+            | BoolDec
+            | order id "(" Params ")" FunReturn? Block            -- fundec
             | print (Exp | strlit)                                -- print
-            | if Exp Block (else if Exp Block)* (else Block)?     -- ifstmt
+            | if Exp Block ElIf* (else Block)?                    -- ifstmt
             | Exp type id					                                -- vardec
-            | ClassDec						                                -- classdec
-            | Assignment                                          -- assign
-            | Call                                                -- call
             | blend while Exp Block                               -- while
             | blend Block until Exp                               -- dowhile
+  FunReturn = "->" type
+  ElIf      = else if Exp Block
   Block     = "{" Statement* (Serve | stop)? "}"
   Serve     = serve (Exp)?
   
-  Assignment  = BoolDec
-  			      | add Exp to id                         -- increment
-  				    | (this ".")? id "=" Exp                -- plain
+  Assignment  = (this ".")? id "=" Exp                  -- plain
+              | add Exp to id                           -- increment
   BoolDec 	  = (true | bool) id -- true
   					  | false id 			-- false
   ClassDec    = item id "{" Statement* "}"
 
-  Exp         = ("-" | "!") Exp7                      -- unary
-              | Exp1 "?" Exp1 ":" Exp                 -- ternary
-              | Exp1
-  Exp1        = Exp1 "||" Exp2                        -- binary
-              | Exp2
-  Exp2        = Exp2 "&&" Exp3                        -- binary
-              | Exp3
-  Exp3        = Exp4 (lessthaneq
-                      | lessthan
-                      | equal
-                      | notequal
-                      | greaterthaneq
-                      | greaterthan) Exp4             -- binary
-              | Exp4
-  Exp4        = Exp4 "+" Exp5	-- plus
-  			      | Exp4 "-" Exp5			-- subtract
-              | Exp5
-  Exp5        = Exp5 ("*" | "/" | "%") Exp6           -- binary
-              | Exp6
-  Exp6        = Exp7 "**" Exp6                        -- binary
-              | Exp7
-  Exp7        = numlit
+  Exp         = ("-" | "!") LitExp                      -- unary
+              | OrExp "?" OrExp ":" Exp                 -- ternary
+              | OrExp
+  OrExp       = OrExp "||" AndExp                       -- binary
+              | AndExp
+  AndExp      = AndExp "&&" CmpExp                      -- binary
+              | CmpExp
+  CmpExp      = AddExp ("less than equal to"
+                      | "less than"
+                      | "not equal to"
+                      | "equal to"
+                      | "greater than equal to"
+                      | "greater than") AddExp          -- binary
+              | AddExp
+  AddExp      = AddExp ("+" | "-") MulExp	              -- binary
+              | MulExp
+  MulExp      = MulExp ("*" | "/" | "%") ExpExp         -- binary
+              | ExpExp
+  ExpExp      = LitExp "**" ExpExp                      -- binary
+              | LitExp
+  LitExp      = numlit
               | true
               | false
               | Call
-              | ((id | this) ".")? id                 -- id
-              | "(" Exp ")"                           -- parens
-             
-  DotExp	= Exp "." id
+              | ((id | this) ".")? id                   -- id
+              | "(" Exp ")"                             -- parens
 
   Call        = id "(" Args ")"
   Params      = ListOf<id, ",">
   Args        = ListOf<Exp, ",">
-
-  equal             = ("==" | "is equal to")
-  notequal          = ("!=" | "is not equal to")
-  lessthan          = ("<" | "is less than")
-  lessthaneq        = ("<=" | "is less than or equal to")
-  greaterthan       = (">" | "is greater than")
-  greaterthaneq     = (">=" | "is greater than or equal to")
   
   type	        = id | bool
   
@@ -82,9 +74,9 @@ Barista {
   comment       = "<comment>" | "</comment>"
   
   keyword   = order | while | true | false | print | serve | if | else | blend | stop | repeat | until | add | to | item | this | comment | bool
-  numlit    = digit+ ("." digit+)? (("E" | "e") ("+" | "-")? digit+)?
+  numlit    = digit+ ("." digit+)?
   strlit		= "\"" (~"\"" (any))* "\""
-  id        = ~keyword letter idchar*
+  id        = ~keyword idchar+
   idchar    = letter | digit | "_"
   space     += "<comment>" (~"</comment>" any)* "</comment>"  -- comment
 }
