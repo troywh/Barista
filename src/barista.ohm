@@ -7,7 +7,7 @@ Barista {
             | if Exp Block ElIf* (else Block)?          -- ifstmt
             | Exp Type id				                        -- vardec
             | true | false id					                  -- booldec
-            | order id "(" Params ")" FunReturn? Block  -- fundec
+            | order id "(" Params? ")" FunReturn? Block  -- fundec
             | item id "{" Statement* "}"						    -- classdec
             | blend while Exp Block                     -- while
             | blend Block until Exp                     -- dowhile
@@ -45,9 +45,9 @@ Barista {
               | ((id | this) ".")? id                   -- id
               | "(" Exp ")"                             -- parens
 
-  Call        = id "(" Args ")"
-  Params      = ListOf<id, ",">
-  Args        = ListOf<Exp, ",">
+  Call        = id "(" Args? ")"
+  Params      =  id ("," id)*
+  Args        = Exp ("," Exp)*
   
   Type	      = id | bool
   

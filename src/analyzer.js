@@ -112,13 +112,13 @@ export default function analyze(sourceCode) {
     },
 
     Call(id, _left, args, _right) {
-      return new core.Call(id, args)
+      return new core.Call(id.rep(), args.rep())
     },
-    Params(ls) {
-      return new core.Parameters(ls)
+    Params(first, _comma, next) {
+      return new core.Parameters(first.rep(), next.rep())
     },
-    Args(ls) {
-      return new core.Arguments(ls)
+    Args(first, _comma, next) {
+      return new core.Arguments(first.rep(), next.rep())
     },
 
     Type(type) {
