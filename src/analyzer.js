@@ -13,6 +13,10 @@ function error(message, node) {
 }
 
 export default function analyze(sourceCode) {
+  const context = {
+    locals: new Map(),
+  }
+
   const analyzer = baristaGrammar.createSemantics().addOperation("rep", {
     Program(body) {
       return new core.Program(body.children.map((s) => s.rep()))
@@ -70,7 +74,11 @@ export default function analyze(sourceCode) {
     },
 
     Assignment_plain(_this, _dot, id, _equals, expression) {
-      return new core.AssignmentStatement(id.rep(), expression.rep())
+      const variable = id.rep()
+      if (!context.locals.has(variable)) {
+        error(`Undeclared var: ${variable}`, id)
+      }
+      return new core.AssignmentStatement(variable, expression.rep())
     },
     Assignment_increment(_add, expression, _to, id) {
       return new core.AssignmentStatement(id.rep(), expression.rep())
@@ -79,7 +87,7 @@ export default function analyze(sourceCode) {
     Exp_unary(op, expression) {
       return new core.UnaryExpression(op.rep(), expression.rep())
     },
-    Exp_ternary(test, _questionMark, consequent, _colon, exp3) {
+    Exp_ternary(test, _questionMark, consequent, _colon, alternate) {
       return new core.TernaryExpression(
         test.rep(),
         consequent.rep(),
