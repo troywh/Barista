@@ -4,6 +4,220 @@ import * as core from "./core.js"
 
 const baristaGrammar = ohm.grammar(fs.readFileSync("src/barista.ohm"))
 
+const INT = core.Type.INT
+const FLOAT = core.Type.FLOAT
+const STRING = core.Type.STRING
+const BOOLEAN = core.Type.BOOLEAN
+const ANY = core.Type.ANY
+const VOID = core.Type.VOID
+
+function must(condition, message, errorLocation) {
+  if (!condition) core.error(message, errorLocation)
+}
+
+function mustNotAlreadyBeDeclared(context, name) {
+  must(!context.sees(name), `Identifier ${name} already declared`)
+}
+
+function mustHaveBeenFound(entity, name) {
+  must(entity, `Identifier ${name} not declared`)
+}
+
+function mustHaveNumericType(e, at) {
+  must([INT, FLOAT].includes(e.type), "Expected a number", at)
+}
+
+function mustHaveNumericOrStringType(e, at) {
+  must([INT, FLOAT, STRING].includes(e.type), "Expected a number or string", at)
+}
+
+function mustHaveBooleanType(e, at) {
+  must(e.type === BOOLEAN, "Expected a boolean", at)
+}
+
+function mustHaveIntegerType(e, at) {
+  must(e.type === INT, "Expected an integer", at)
+}
+
+function mustHaveAnArrayType(e, at) {
+  must(e.type instanceof core.ArrayType, "Expected an array", at)
+}
+
+function mustHaveAnOptionalType(e, at) {
+  must(e.type instanceof core.OptionalType, "Expected an optional", at)
+}
+
+function mustHaveAStructType(e, at) {
+  must(e.type instanceof core.StructType, "Expected a struct", at)
+}
+
+function mustHaveOptionalStructType(e, at) {
+  must(
+    e.type instanceof core.OptionalType &&
+      e.type.baseType.constructor == core.StructType,
+    "Expected an optional struct",
+    at
+  )
+}
+
+function entityMustBeAType(e, at) {
+  must(e instanceof core.Type, "Type expected", at)
+}
+
+function mustBeTheSameType(e1, e2, at) {
+  must(equivalent(e1.type, e2.type), "Operands do not have the same type", at)
+}
+
+function mustAllHaveSameType(expressions, at) {
+  // Used to check array elements, for example
+  must(
+    expressions.slice(1).every((e) => equivalent(e.type, expressions[0].type)),
+    "Not all elements have the same type",
+    at
+  )
+}
+
+function mustNotBeRecursive(struct, at) {
+  must(
+    !struct.fields.map((f) => f.type).includes(struct),
+    "Struct type must not be recursive",
+    at
+  )
+}
+
+function equivalent(t1, t2) {
+  return (
+    t1 === t2 ||
+    (t1 instanceof core.OptionalType &&
+      t2 instanceof core.OptionalType &&
+      equivalent(t1.baseType, t2.baseType)) ||
+    (t1 instanceof core.ArrayType &&
+      t2 instanceof core.ArrayType &&
+      equivalent(t1.baseType, t2.baseType)) ||
+    (t1.constructor === core.FunctionType &&
+      t2.constructor === core.FunctionType &&
+      equivalent(t1.returnType, t2.returnType) &&
+      t1.paramTypes.length === t2.paramTypes.length &&
+      t1.paramTypes.every((t, i) => equivalent(t, t2.paramTypes[i])))
+  )
+}
+
+function assignable(fromType, toType) {
+  return (
+    toType == ANY ||
+    equivalent(fromType, toType) ||
+    (fromType.constructor === core.FunctionType &&
+      toType.constructor === core.FunctionType &&
+      // covariant in return types
+      assignable(fromType.returnType, toType.returnType) &&
+      fromType.paramTypes.length === toType.paramTypes.length &&
+      // contravariant in parameter types
+      toType.paramTypes.every((t, i) => assignable(t, fromType.paramTypes[i])))
+  )
+}
+
+function mustBeAssignable(e, { toType: type }, at) {
+  must(
+    assignable(e.type, type),
+    `Cannot assign a ${e.type.description} to a ${type.description}`,
+    at
+  )
+}
+
+function mustNotBeReadOnly(e, at) {
+  must(!e.readOnly, `Cannot assign to constant ${e.name}`, at)
+}
+
+function fieldsMustBeDistinct(fields, at) {
+  const fieldNames = new Set(fields.map((f) => f.name))
+  must(fieldNames.size === fields.length, "Fields must be distinct", at)
+}
+
+function memberMustBeDeclared(field, { in: structType }, at) {
+  must(
+    structType.fields.map((f) => f.name).includes(field),
+    "No such field",
+    at
+  )
+}
+
+function mustBeInLoop(context, at) {
+  must(context.inLoop, "Break can only appear in a loop", at)
+}
+
+function mustBeInAFunction(context, at) {
+  must(context.function, "Return can only appear in a function", at)
+}
+
+function mustBeCallable(e, at) {
+  must(
+    e instanceof core.StructType || e.type.constructor == core.FunctionType,
+    "Call of non-function or non-constructor",
+    at
+  )
+}
+
+function mustNotReturnAnything(f, at) {
+  must(f.type.returnType === VOID, "Something should be returned", at)
+}
+
+function mustReturnSomething(f, at) {
+  must(
+    f.type.returnType !== VOID,
+    "Cannot return a value from this function",
+    at
+  )
+}
+
+function mustBeReturnable({ expression: e, from: f }, at) {
+  mustBeAssignable(e, { toType: f.type.returnType }, at)
+}
+
+function argumentsMustMatch(args, targetTypes, at) {
+  must(
+    targetTypes.length === args.length,
+    `${targetTypes.length} argument(s) required but ${args.length} passed`,
+    at
+  )
+  targetTypes.forEach((type, i) => mustBeAssignable(args[i], { toType: type }))
+}
+
+function callArgumentsMustMatch(args, calleeType, at) {
+  argumentsMustMatch(args, calleeType.paramTypes, at)
+}
+
+function constructorArgumentsMustMatch(args, structType, at) {
+  const fieldTypes = structType.fields.map((f) => f.type)
+  argumentsMustMatch(args, fieldTypes, at)
+}
+
+class Context {
+  constructor({
+    parent = null,
+    locals = new Map(),
+    inLoop = false,
+    function: f = null,
+  }) {
+    Object.assign(this, { parent, locals, inLoop, function: f })
+  }
+  sees(name) {
+    // Search "outward" through enclosing scopes
+    return this.locals.has(name) || this.parent?.sees(name)
+  }
+  add(name, entity) {
+    mustNotAlreadyBeDeclared(this, name)
+    this.locals.set(name, entity)
+  }
+  lookup(name) {
+    const entity = this.locals.get(name) || this.parent?.lookup(name)
+    mustHaveBeenFound(entity, name)
+    return entity
+  }
+  newChildContext(props) {
+    return new Context({ ...this, ...props, parent: this, locals: new Map() })
+  }
+}
+
 // Throw an error message that takes advantage of Ohm's messaging
 function error(message, node) {
   if (node) {
@@ -13,9 +227,7 @@ function error(message, node) {
 }
 
 export default function analyze(sourceCode) {
-  const context = {
-    locals: new Map(),
-  }
+  const context = new Context({})
 
   const analyzer = baristaGrammar.createSemantics().addOperation("rep", {
     Program(body) {
