@@ -6,9 +6,29 @@ export class Program {
   }
 }
 
+export class Type {
+  static INT = new Type("int")
+  static STRING = new Type("string")
+  static BOOLEAN = new Type("bool")
+}
+
 export class FunctionDeclaration {
-  constructor(fun, params, type, body) {
-    Object.assign(this, { fun, params, type, body })
+  constructor(name, fun, params, body) {
+    Object.assign(this, { name, fun, params, body })
+  }
+}
+
+export class Function {
+  // Generated when processing a function declaration
+  constructor(name, type) {
+    Object.assign(this, { name, type })
+  }
+}
+
+export class FunctionType extends Type {
+  constructor(paramTypes, returnType) {
+    super(`(${paramTypes.map((t) => t).join(",")})->${returnType}`)
+    Object.assign(this, { paramTypes, returnType })
   }
 }
 
@@ -25,7 +45,7 @@ export class Conditional {
 }
 
 export class VariableDeclaration {
-  constructor(initializer, type, variable) {
+  constructor(initializer, type, readonly, variable) {
     Object.assign(this, { initializer, type, variable })
   }
 }
@@ -123,10 +143,4 @@ Program.prototype[util.inspect.custom] = function () {
 
   tag(this)
   return [...lines()].join("\n")
-}
-
-export class Type {
-  static INT = new Type("int")
-  static STRING = new Type("string")
-  static BOOLEAN = new Type("bool")
 }
