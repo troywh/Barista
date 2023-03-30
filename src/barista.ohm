@@ -5,9 +5,9 @@ Barista {
             | serve (Exp)?										          -- return
             | print (Exp | strlit)                      -- print
             | if Exp Block ElIf* (else Block)?          -- ifstmt
-            | Exp Type id				                        -- vardec
-            | true | false id					                  -- booldec
-            | order id "(" Params? ")" FunReturn? Block  -- fundec
+            | (true | false) (readonly)?  id					  -- booldec
+            | Exp Type(readonly)? id				            -- vardec
+            | order id "(" Params? ")" FunReturn? Block -- fundec
             | item id "{" Statement* "}"						    -- classdec
             | blend while Exp Block                     -- while
             | blend Block until Exp                     -- dowhile
@@ -39,15 +39,15 @@ Barista {
   ExpExp      = Term "**" ExpExp                        -- binary
               | Term
   Term        = numlit
-              | true
-              | false
+              | BoolVal
               | Call
               | ((id | this) ".")? id                   -- id
               | "(" Exp ")"                             -- parens
 
   Call        = id "(" Args? ")"
   Params      =  id ("," id)*
-  Args        = Exp ("," Exp)*
+  Args        = (Exp | strlit | BoolVal) ("," (Exp | strlit | BoolVal))*
+  BoolVal     = (true | false)
   
   Type	      = id | bool
   
@@ -69,6 +69,7 @@ Barista {
   this        = "this" ~idchar
   bool        = "with" ~idchar
   comment     = "<comment>" | "</comment>"
+  readonly = "*"
   
   keyword   = order | while | true | false | print | serve | if | else | blend | stop | repeat | until | add | to | item | this | comment | bool
   numlit    = digit+ ("." digit+)?
