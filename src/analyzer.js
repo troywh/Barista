@@ -12,7 +12,7 @@ const ANY = core.Type.ANY
 const VOID = core.Type.VOID
 
 function must(condition, message, errorLocation) {
-  if (!condition) core.error(message, errorLocation)
+  if (!condition) error(message, errorLocation)
 }
 
 function mustNotAlreadyBeDeclared(context, name) {
@@ -124,6 +124,16 @@ function mustBeAssignable(e, { toType: type }, at) {
   )
 }
 
+function mustBePrintableType(context, e) {
+  const type = e.type
+  if (!context.lookup(e)) {
+    must(
+      type === STRING || type === INT || type === FLOAT || type === BOOLEAN,
+      `${e.type} is not printable`
+    )
+  }
+}
+
 function mustNotBeReadOnly(e, at) {
   must(!e.readOnly, `Cannot assign to constant ${e.name}`, at)
 }
@@ -204,6 +214,11 @@ class Context {
     // Search "outward" through enclosing scopes
     return this.locals.has(name) || this.parent?.sees(name)
   }
+  printable(argument) {
+    if (!this.sees(argument)) {
+      mustBePrintableType(argument)
+    }
+  }
   add(name, entity) {
     mustNotAlreadyBeDeclared(this, name)
     this.locals.set(name, entity)
@@ -227,7 +242,7 @@ function error(message, node) {
 }
 
 export default function analyze(sourceCode) {
-  const context = new Context({})
+  let context = new Context({})
 
   const analyzer = baristaGrammar.createSemantics().addOperation("rep", {
     Program(body) {
@@ -237,33 +252,46 @@ export default function analyze(sourceCode) {
       return value.rep()
     },
     Statement_print(_print, argument) {
-      return new core.PrintStatement(argument.rep())
+      const arg = argument.rep()
+      mustBePrintableType(context, arg)
+      return new core.PrintStatement(arg)
     },
     Statement_ifstmt(_if, test, consequent, elif, _else, alternate) {
+      const tst = test.rep()
+      mustHaveBooleanType(tst)
       return new core.Conditional(
-        test.rep(),
+        tst,
         consequent.rep(),
         elif.rep(),
         alternate.rep()
       )
     },
-    Statement_vardec(expression, type, id) {
-      return new core.VariableDeclaration(
-        expression.rep(),
-        type.rep(),
-        id.rep()
-      )
+    Statement_vardec(expression, type, readonly, id) {
+      const iden = id.rep()
+      const t = type.rep()
+      const expr = expression.rep()
+      context.add(iden, expr)
+      return new core.VariableDeclaration(expr, t, readonly.rep(), iden)
     },
-    Statement_booldec(value, id) {
-      return new core.VariableDeclaration(id.rep(), "bool", value.rep())
+    Statement_booldec(value, readonly, id) {
+      const iden = id.rep()
+      const val = value.rep()
+      context.add(iden, val)
+      return new core.VariableDeclaration(iden, BOOLEAN, readonly.rep(), val)
     },
-    Statement_fundec(_order, id, _left, params, _right, type, body) {
-      return new core.FunctionDeclaration(
-        id.rep(),
-        params.rep(),
-        type.rep(),
-        body.rep()
-      )
+    Statement_fundec(_order, id, _left, paramList, _right, type, block) {
+      const returnType = type.rep() ?? VOID
+      const iden = id.rep()
+      const params = paramList.rep()
+      const paramTypes = params.map((param) => param.type)
+      const funType = new core.FunctionType(paramTypes, returnType)
+      const fun = new core.Function(iden, funType)
+      context.add(iden, fun)
+      context = context.newChildContext({ inLoop: false, function: fun })
+      for (const param of params) context.add(param.name, param)
+      const body = block.rep()
+      context = context.parent
+      return new core.FunctionDeclaration(iden, fun, params, body)
     },
     Statement_classdec(_item, id, _left, body, _right) {
       return new core.ClassDeclaration(id.rep(), body.rep())
@@ -287,9 +315,7 @@ export default function analyze(sourceCode) {
 
     Assignment_plain(_this, _dot, id, _equals, expression) {
       const variable = id.rep()
-      if (!context.locals.has(variable)) {
-        error(`Undeclared var: ${variable}`, id)
-      }
+      context.sees(variable)
       return new core.AssignmentStatement(variable, expression.rep())
     },
     Assignment_increment(_add, expression, _to, id) {
