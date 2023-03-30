@@ -1,6 +1,5 @@
 import assert from "assert/strict"
 import analyze from "../src/analyzer.js"
-import * as core from "../src/core.js"
 
 // const semanticChecks = [
 //   ["variables can be printed", "1 pump y print y"],
@@ -13,17 +12,17 @@ import * as core from "../src/core.js"
 
 const semanticChecks = [
   ["variables can be printed", "1 pump y print y"],
-  ["variables can be reassigned", "1 pump y  y * 5 / ((-3) + y) pump y"],
+  ["variables can be reassigned", "1 pump y  y = y * 5 / ((-3) + y)"],
   ["variable declarations", "1 pump y"],
   ["functions with return value", "order f(x) -> pumps {serve x * 2}"],
   ["increment ", "1 pump y add 1 to y"],
-  ["boolean", "print true"],
-  ["loops", "5 pumps count blend while count less than 10 { print count}"],
-  ["function with no return value", "order g() {print (2 + f(2))}"],
-  ["conditions", "if true {print yes}"],
-  ["loops with return statement", "blend while true { serve}"],
-  ["function return true", "order g() {serve true}"],
-  ["function return false", "order g() {serve false}"],
+  ["boolean", "yes x no y y = yes"],
+  ["loops", "5 pumps count blend while count less than 10 { print count }"],
+  ["function with no return value", "order g(x) { print (x * 2) }"],
+  ["conditions", "if true { print 1 }"],
+  ["loops with return statement", "blend while true { serve }"],
+  ["function return true", "order g() -> bool {serve true}"],
+  ["function return false", "order g() -> bool {serve false}"],
   ["condition with no", "if no {print no}"],
   ["condition with yes", "if yes {print yes}"],
   ["if else", " if yes {serve 2} else {serve 5}"],
@@ -35,7 +34,7 @@ const semanticChecks = [
 ]
 
 const semanticErrors = [
-  ["using undeclared identifiers", "print x", /x has not been declared/],
+  ["using undeclared identifiers", "print x", /Identifier x not declared/],
   ["a variable used as function", "1 pump x  x(2) ", /Expected "="/],
   ["a function used as variable", "print sin + 1", /expected/],
   [
