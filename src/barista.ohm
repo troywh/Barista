@@ -55,8 +55,8 @@ Barista {
   while       = "while" ~idchar
   repeat      = "repeat" ~idchar
   until       = "until" ~idchar
-  true        = ("YES" | "Yes" | "yes") ~idchar
-  false       = ("NO" | "No" | "no") ~idchar
+  true        = ("true" | "YES" | "Yes" | "yes") ~idchar
+  false       = ("false" | "NO" | "No" | "no") ~idchar
   print       = "print" ~idchar
   serve		    = "serve" ~idchar
   if	        = "if" ~idchar

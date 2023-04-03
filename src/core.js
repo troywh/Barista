@@ -9,7 +9,10 @@ export class Program {
 export class Type {
   static INT = new Type("int")
   static STRING = new Type("string")
-  static BOOLEAN = new Type("bool")
+  static BOOLEAN = new Type("boolean")
+  constructor(description) {
+    Object.assign(this, { description })
+  }
 }
 
 export class FunctionDeclaration {
@@ -115,6 +118,10 @@ export class StringLiteral {
     this.contents = contents
   }
 }
+
+Number.prototype.type = Type.INT
+String.prototype.type = Type.STRING
+Boolean.prototype.type = Type.BOOLEAN
 
 Program.prototype[util.inspect.custom] = function () {
   const tags = new Map()

@@ -124,14 +124,12 @@ function mustBeAssignable(e, { toType: type }, at) {
   )
 }
 
-function mustBePrintableType(context, e) {
+function mustBePrintableType(e) {
   const type = e.type
-  if (!context.lookup(e)) {
-    must(
-      type === STRING || type === INT || type === FLOAT || type === BOOLEAN,
-      `${e.type} is not printable`
-    )
-  }
+  must(
+    type === STRING || type === INT || type === FLOAT || type === BOOLEAN,
+    `${e.type} is not printable`
+  )
 }
 
 function mustNotBeReadOnly(e, at) {
@@ -253,12 +251,12 @@ export default function analyze(sourceCode) {
     },
     Statement_print(_print, argument) {
       const arg = argument.rep()
-      mustBePrintableType(context, arg)
+      mustBePrintableType(arg)
       return new core.PrintStatement(arg)
     },
     Statement_ifstmt(_if, test, consequent, elif, _else, alternate) {
       const tst = test.rep()
-      mustHaveBooleanType(tst)
+      mustHaveBooleanType(tst, test)
       return new core.Conditional(
         tst,
         consequent.rep(),
