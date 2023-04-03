@@ -40,7 +40,7 @@ const semanticErrors = [
   [
     "re-declared identifier",
     "1 pump y 2 pump y",
-    /x has already been declared/,
+    /Identifier y already declared/,
   ],
   ["an attempt to write a read-only var", "π = 3", /π is read only/],
   ["too few arguments", "print sin()", /Expected 1 arg\(s\), found 0/],

@@ -48,8 +48,8 @@ export class Conditional {
 }
 
 export class VariableDeclaration {
-  constructor(initializer, type, readonly, variable) {
-    Object.assign(this, { initializer, type, variable })
+  constructor(initializer, type, readOnly, variable) {
+    Object.assign(this, { initializer, type, readOnly, variable })
   }
 }
 
@@ -84,8 +84,8 @@ export class DoWhileStatement {
 }
 
 export class BinaryExpression {
-  constructor(op, left, right) {
-    Object.assign(this, { op, left, right })
+  constructor(op, left, right, type) {
+    Object.assign(this, { op, left, right, type })
   }
 }
 

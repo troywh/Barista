@@ -213,9 +213,7 @@ class Context {
     return this.locals.has(name) || this.parent?.sees(name)
   }
   printable(argument) {
-    if (!this.sees(argument)) {
-      mustBePrintableType(argument)
-    }
+    mustBePrintableType(argument)
   }
   add(name, entity) {
     mustNotAlreadyBeDeclared(this, name)
@@ -251,7 +249,7 @@ export default function analyze(sourceCode) {
     },
     Statement_print(_print, argument) {
       const arg = argument.rep()
-      mustBePrintableType(arg)
+      context.printable(arg)
       return new core.PrintStatement(arg)
     },
     Statement_ifstmt(_if, test, consequent, elif, _else, alternate) {
@@ -331,22 +329,22 @@ export default function analyze(sourceCode) {
       )
     },
     OrExp_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+      return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), BOOLEAN)
     },
     AndExp_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+      return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), BOOLEAN)
     },
     CmpExp_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+      return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), BOOLEAN)
     },
     AddExp_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+      return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), INT)
     },
     MulExp_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+      return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), INT)
     },
     ExpExp_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep())
+      return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), INT)
     },
     Term_id(_parent, _dot, id) {
       return id.rep()
