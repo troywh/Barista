@@ -267,6 +267,7 @@ export default function analyze(sourceCode) {
       const t = type.rep()
       const expr = expression.rep()
       context.add(iden, expr)
+
       return new core.VariableDeclaration(expr, t, readonly.rep(), iden)
     },
     Statement_booldec(value, readonly, id) {
