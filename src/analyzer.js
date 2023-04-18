@@ -266,6 +266,7 @@ export default function analyze(sourceCode) {
       const iden = id.rep()
       const t = type.rep()
       const expr = expression.rep()
+      //mustNotBeReadOnly()
       context.add(iden, expr)
 
       return new core.VariableDeclaration(expr, t, readonly.rep(), iden)
