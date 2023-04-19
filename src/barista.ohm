@@ -15,8 +15,8 @@ Barista {
   ElIf      = else if Exp Block
   Block     = "{" Statement* "}"
   
-  Assignment  = (this ".")? id "=" Exp                  -- plain
-              | add Exp to id                           -- increment
+  Assignment  = Term_id "=" Exp                  -- plain
+              | add Exp to Term_id                           -- increment
 
   Exp         = ("-" | "!") Term                        -- unary
               | OrExp "?" OrExp ":" Exp                 -- ternary
@@ -41,7 +41,8 @@ Barista {
   Term        = numlit
               | BoolVal
               | Call
-              | ((id | this) ".")? id                   -- id
+              | ((id | this) ".") id                    -- member
+              | id                                      -- id
               | "(" Exp ")"                             -- parens
 
   Call        = id "(" Args? ")"

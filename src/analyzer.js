@@ -221,7 +221,6 @@ class Context {
   }
   lookup(name) {
     const entity = this.locals.get(name) || this.parent?.lookup(name)
-    mustHaveBeenFound(entity, name)
     return entity
   }
   newChildContext(props) {
@@ -266,9 +265,12 @@ export default function analyze(sourceCode) {
       const iden = id.rep()
       const t = type.rep()
       const expr = expression.rep()
-      //mustNotBeReadOnly()
+      if(readonly === '*'){
+        mustNotBeReadOnly(iden, id)
+      }
+      
       context.add(iden, expr)
-
+      
       return new core.VariableDeclaration(expr, t, readonly.rep(), iden)
     },
     Statement_booldec(value, readonly, id) {
@@ -311,7 +313,7 @@ export default function analyze(sourceCode) {
       return body.rep()
     },
 
-    Assignment_plain(_this, _dot, id, _equals, expression) {
+    Assignment_plain(id, _equals, expression) {
       const variable = id.rep()
       context.sees(variable)
       return new core.AssignmentStatement(variable, expression.rep())
@@ -348,8 +350,16 @@ export default function analyze(sourceCode) {
     ExpExp_binary(left, op, right) {
       return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), INT)
     },
-    Term_id(_parent, _dot, id) {
-      return id.rep()
+    Term_member(parent, _dot, id) {
+      if (parent.sourceString !== 'this') {
+        // TODO
+      }
+      return new core.Program() // TODO FIX THIS
+    },
+    Term_id(id) {
+      const entity = context.lookup(id.sourceString)
+      mustHaveBeenFound(entity, id.sourceString)
+      return entity
     },
     Term_parens(_left, expression, _right) {
       return expression.rep()
