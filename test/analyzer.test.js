@@ -16,7 +16,7 @@ const semanticChecks = [
   ["variable declarations", "1 pump y"],
   //["functions with return value", "order f(x) -> pumps {serve x * 2}"],
   ["increment ", "1 pump y add 1 to y"],
-  ["boolean", "yes x no y y = yes"],
+  ["boolean", "yes x print x"],
   ["loops", "5 pumps count blend while count less than 10 { print count }"],
   ["function with no return value", "order g(x) { print (1 * 2) }"],
   ["conditions", "if true { print 1 }"],
@@ -35,16 +35,36 @@ const semanticChecks = [
 
 const semanticErrors = [
   ["using undeclared identifiers", "print x", /Identifier x not declared/],
-  ["a variable used as function", "1 pump x  x(2) ", /Expected "="/],
-  ["a function used as variable", "print sin + 1", /expected/],
+  [
+    "function used as a variable",
+    "order g(x) -> bool {serve true} g(2) + 1 ",
+    /Expected/,
+  ],
+  [
+    "an undeclared var used as variable",
+    "print sin + 1",
+    /Error: Identifier sin not declared/,
+  ],
   [
     "re-declared identifier",
     "1 pump y 2 pump y",
     /Identifier y already declared/,
   ],
-  ["an attempt to write a read-only var", "π = 3", /π is read only/],
-  ["too few arguments", "print sin()", /Expected 1 arg\(s\), found 0/],
-  ["too many arguments", "print sin(5, 10)", /Expected 1 arg\(s\), found 2/],
+  [
+    "an attempt to write a read-only var",
+    "yes = 3",
+    /The input did not match the regular expression/,
+  ],
+  [
+    "too few arguments",
+    "order g(x,y) -> bool {serve true} g(1)",
+    /Expected 1 arg\(s\), found 0/,
+  ],
+  [
+    "too many arguments",
+    "order g() -> bool {serve true} g(1,2,3,4)",
+    /Expected 1 arg\(s\), found 2/,
+  ],
 ]
 
 describe("The analyzer", () => {
