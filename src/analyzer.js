@@ -351,9 +351,14 @@ export default function analyze(sourceCode) {
       return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), INT)
     },
     Term_member(parent, _dot, id) {
+      //Not complete
       if (parent.sourceString !== 'this') {
+        const entity = context.lookup(parent.sourceString)
+        mustHaveBeenFound(entity, parent.sourceString)
+      return entity
         // TODO
       }
+      
       return new core.Program() // TODO FIX THIS
     },
     Term_id(id) {
