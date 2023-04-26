@@ -27,7 +27,7 @@ We are proud to finally announce our official partnership with Starbucks coffee.
   </tr>
   <tr>
     <td>boolean (true/false)</td>
-    <td>whipped cream (yes/no)</td>
+    <td>bool (yes/no)</td>
   </tr>
   <tr>
     <td>string</td>
