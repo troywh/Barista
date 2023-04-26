@@ -10,7 +10,7 @@ We are proud to finally announce our official partnership with Starbucks coffee.
 
 ### Features:
 
-- Based on Java, Javascript, HTML, Swift and Python
+- Based on primarily Jvascript
 - Object Oriented
 - String concatination
 - static and dynamic typing
@@ -27,7 +27,7 @@ We are proud to finally announce our official partnership with Starbucks coffee.
   </tr>
   <tr>
     <td>boolean (true/false)</td>
-    <td>whipped cream (yes/no)</td>
+    <td>bool (yes/no)</td>
   </tr>
   <tr>
     <td>string</td>
@@ -63,10 +63,6 @@ We are proud to finally announce our official partnership with Starbucks coffee.
 ### Other (JS | Barista):
 
 <table>
-   <tr>
-       <th>class</th>
-       <th>drink</th>
-   </tr>
    <tr>
        <th>function</th>
        <th>order</th>
@@ -154,7 +150,7 @@ function mutiplyByTwo(x){
     
 ```
 order mutiplyByTwo(pump x) -> pump {
-    server x * 2;
+    serve x * 2;
 }
 ```
 </td>
