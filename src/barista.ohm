@@ -2,12 +2,13 @@ Barista {
   Program   = Statement+
   Statement = Assignment
             | Call
-            | serve (Exp)?										          -- return
+            | stop
+            | serve (Exp | strlit)?										  -- return
             | print (Exp | strlit)                      -- print
             | if Exp Block ElIf* (else Block)?          -- ifstmt
             | (true | false) (readonly)?  id					  -- booldec
             | Exp Type(readonly)? id				            -- vardec
-            | order id "(" Params? ")" FunReturn? Block -- fundec
+            | order id Params FunReturn? Block          -- fundec
             | item id "{" Statement* "}"						    -- classdec
             | blend while Exp Block                     -- while
             | blend Block until Exp                     -- dowhile
@@ -15,15 +16,15 @@ Barista {
   ElIf      = else if Exp Block
   Block     = "{" Statement* "}"
   
-  Assignment  = Term_id "=" Exp                  -- plain
-              | add Exp to Term_id                           -- increment
+  Assignment  = Term_id "=" Exp                         -- plain
+              | add Exp to Term_id                      -- increment
 
   Exp         = ("-" | "!") Term                        -- unary
               | OrExp "?" OrExp ":" Exp                 -- ternary
               | OrExp
-  OrExp       = OrExp "||" AndExp                       -- binary
+  OrExp       = OrExp or AndExp                       -- binary
               | AndExp
-  AndExp      = AndExp "&&" CmpExp                      -- binary
+  AndExp      = AndExp and CmpExp                     -- binary
               | CmpExp
   CmpExp      = AddExp ("less than equal to"
                       | "less than"
@@ -46,7 +47,8 @@ Barista {
               | "(" Exp ")"                             -- parens
 
   Call        = id "(" Args? ")"
-  Params      =  id ("," id)*
+  Params      = "(" ListOf<Param, ","> ")"
+  Param       = Type id
   Args        = (Exp | strlit | BoolVal) ("," (Exp | strlit | BoolVal))*
   BoolVal     = (true | false)
   
@@ -69,10 +71,12 @@ Barista {
   item        = "item" ~idchar
   this        = "this" ~idchar
   bool        = "with" ~idchar
+  and         = "and" ~idchar
+  or          = "or" ~idchar
   comment     = "<comment>" | "</comment>"
-  readonly = "*"
+  readonly    = "*"
   
-  keyword   = order | while | true | false | print | serve | if | else | blend | stop | repeat | until | add | to | item | this | comment | bool
+  keyword   = order | while | true | false | print | serve | if | else | blend | stop | repeat | until | add | to | item | this | comment | bool | and | or
   numlit    = digit+ ("." digit+)?
   strlit		= "\"" (~"\"" (any))* "\""
   id        = ~keyword idchar+

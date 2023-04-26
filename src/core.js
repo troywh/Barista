@@ -101,9 +101,9 @@ export class TernaryExpression {
   }
 }
 
-export class Parameters {
-  constructor(params) {
-    Object.assign(this, { params })
+export class Parameter {
+  constructor(type, name) {
+    Object.assign(this, { type, name })
   }
 }
 

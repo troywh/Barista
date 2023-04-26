@@ -265,12 +265,12 @@ export default function analyze(sourceCode) {
       const iden = id.rep()
       const t = type.rep()
       const expr = expression.rep()
-      if(readonly === '*'){
+      if (readonly === "*") {
         mustNotBeReadOnly(iden, id)
       }
-      
+
       context.add(iden, expr)
-      
+
       return new core.VariableDeclaration(expr, t, readonly.rep(), iden)
     },
     Statement_booldec(value, readonly, id) {
@@ -279,7 +279,7 @@ export default function analyze(sourceCode) {
       context.add(iden, val)
       return new core.VariableDeclaration(iden, BOOLEAN, readonly.rep(), val)
     },
-    Statement_fundec(_order, id, _left, paramList, _right, type, block) {
+    Statement_fundec(_order, id, paramList, type, block) {
       const returnType = type.rep() ?? VOID
       const iden = id.rep()
       const params = paramList.rep()
@@ -333,13 +333,28 @@ export default function analyze(sourceCode) {
       )
     },
     OrExp_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), BOOLEAN)
+      return new core.BinaryExpression(
+        op.rep(),
+        left.rep(),
+        right.rep(),
+        BOOLEAN
+      )
     },
     AndExp_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), BOOLEAN)
+      return new core.BinaryExpression(
+        op.rep(),
+        left.rep(),
+        right.rep(),
+        BOOLEAN
+      )
     },
     CmpExp_binary(left, op, right) {
-      return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), BOOLEAN)
+      return new core.BinaryExpression(
+        op.rep(),
+        left.rep(),
+        right.rep(),
+        BOOLEAN
+      )
     },
     AddExp_binary(left, op, right) {
       return new core.BinaryExpression(op.rep(), left.rep(), right.rep(), INT)
@@ -352,13 +367,13 @@ export default function analyze(sourceCode) {
     },
     Term_member(parent, _dot, id) {
       //Not complete
-      if (parent.sourceString !== 'this') {
+      if (parent.sourceString !== "this") {
         const entity = context.lookup(parent.sourceString)
         mustHaveBeenFound(entity, parent.sourceString)
-      return entity
+        return entity
         // TODO
       }
-      
+
       return new core.Program() // TODO FIX THIS
     },
     Term_id(id) {
@@ -373,8 +388,11 @@ export default function analyze(sourceCode) {
     Call(id, _left, args, _right) {
       return new core.Call(id.rep(), args.rep())
     },
-    Params(first, _comma, next) {
-      return new core.Parameters(first.rep(), next.rep())
+    Param(type, id) {
+      return new core.Parameter(type, name)
+    },
+    Params(_left, list, _right) {
+      return list.asIteration().children.map((p) => p.rep())
     },
     Args(first, _comma, next) {
       return new core.Arguments(first.rep(), next.rep())
