@@ -1,0 +1,18 @@
+
+5 pumps x
+<comment> This is a function that tells the customer either they have went over the amount of pumps </comment>
+<comment> they can have or they can put more pumps if they desire in their drink. If the customer is on the limit </comment>
+<comment> they will be informed that their drink will be prepared </comment>
+order pumpLimitSingleDrink(pumps input){
+    blend while input not equal to 0 {
+      if(input less than x){
+           serve "You can add more pumps, would you like more?"
+        } else if(input greater than x) {            
+            serve "I'm sorry, you can't have that many pumps in a drink, you can only have upto 5 pumps"
+        } else {
+            serve "your order is in the works"
+        }
+}
+serve "your order is in the works"
+}
+
