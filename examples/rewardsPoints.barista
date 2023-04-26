@@ -1,7 +1,7 @@
 Order towhom(pumps input){
 	constant rewardsPoints = 10;
 
-	if (number is equal to rewardsPoints){
+	if (input equal to rewardsPoints){
        serve “Joe”;
   } else{
   serve null;
