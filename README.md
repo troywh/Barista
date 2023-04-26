@@ -13,7 +13,7 @@ We are proud to finally announce our official partnership with Starbucks coffee.
 - Based primarily on Javascript
 - Object Oriented
 - String concatination
-- static and dynamic typing
+- static typing
 - boolean operators
 - logic expressions: switch statements, while loop, for loop, and repeat loop
 - imports and exports
