@@ -64,10 +64,6 @@ We are proud to finally announce our official partnership with Starbucks coffee.
 
 <table>
    <tr>
-       <th>class</th>
-       <th>drink</th>
-   </tr>
-   <tr>
        <th>function</th>
        <th>order</th>
    </tr>
