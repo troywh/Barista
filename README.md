@@ -10,7 +10,7 @@ We are proud to finally announce our official partnership with Starbucks coffee.
 
 ### Features:
 
-- Based on primarily Jvascript
+- Based primarily on Javascript
 - Object Oriented
 - String concatination
 - static and dynamic typing
