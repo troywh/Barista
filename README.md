@@ -150,7 +150,7 @@ function mutiplyByTwo(x){
     
 ```
 order mutiplyByTwo(pump x) -> pump {
-    server x * 2;
+    serve x * 2;
 }
 ```
 </td>
