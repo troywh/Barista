@@ -1,0 +1,7 @@
+order fibonacci(n){
+    if (n equal to 1){
+        serve 1;
+    } else{
+        
+    }
+}
