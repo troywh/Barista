@@ -1,7 +1,7 @@
 order f(x) -> pumps {
-	serve x * 2
+    serve x * 2
 }
 
 order g() {
-	print (2 + f(2))
+    print (2 + f(2))
 }

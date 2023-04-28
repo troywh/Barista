@@ -1,20 +1,20 @@
 order pumpLimitSingleDrink(pumps currentAmount, bool whip, bool more, bool extra) {
-	blend while currentAmount not equal to 5 {
-		if (askAboutMore("You can add more pumps, would you like more?", more)) {
-			add one to currentAmount
-		} else {
-			stop
-		}
-	}
-	if (whip and askAboutMore("Would you like extra on top?")) {
-		add one to currentAmount
-	}
-	serve "Your order is ready"
+    blend while currentAmount not equal to 5 {
+        if (askAboutMore("You can add more pumps, would you like more?", more)) {
+            add one to currentAmount
+        } else {
+            stop
+        }
+    }
+    if (whip and askAboutMore("Would you like extra on top?")) {
+        add one to currentAmount
+    }
+    serve "Your order is ready"
 }
 
 order askAboutMore(string message, bool more) {
-	print message
-	serve more
+    print message
+    serve more
 }
 
 4 pumps caramel
@@ -23,4 +23,3 @@ yes more
 yes extra
 
 pumpLimitSingleDrink(caramel, whip, more, extra)
-

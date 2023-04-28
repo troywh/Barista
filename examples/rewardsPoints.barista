@@ -1,9 +1,9 @@
-Order towhom(pumps input){
-	constant rewardsPoints = 10;
+order ToWhom(pumps input){
+  constant rewardsPoints = 10;
 
-	if (input equal to rewardsPoints){
-       serve “Joe”;
+  if (input equal to rewardsPoints){
+    serve “Joe”;
   } else{
-  serve null;
+    serve null;
   }
 }
