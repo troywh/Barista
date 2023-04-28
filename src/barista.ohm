@@ -12,6 +12,7 @@ Barista {
             | item id "{" Statement* "}"						    -- classdec
             | blend while Exp Block                     -- while
             | blend Block until Exp                     -- dowhile
+            | Assignment
   FunReturn = "->" Type
   ElIf      = else if Exp Block
   Block     = "{" Statement* "}"
@@ -46,10 +47,10 @@ Barista {
               | id                                      -- id
               | "(" Exp ")"                             -- parens
 
-  Call        = id "(" Args? ")"
+  Call        = id "(" Args ")"
   Params      = "(" ListOf<Param, ","> ")"
   Param       = Type id
-  Args        = (Exp | strlit | BoolVal) ("," (Exp | strlit | BoolVal))*
+  Args        = ListOf<(Exp | strlit), ",">
   BoolVal     = (true | false)
   
   Type	      = id | bool

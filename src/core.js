@@ -7,9 +7,9 @@ export class Program {
 }
 
 export class Type {
-  static INT = new Type("int")
-  static STRING = new Type("string")
-  static BOOLEAN = new Type("boolean")
+  static INT = "pumps"
+  static STRING = "string"
+  static BOOLEAN = "boolean"
   constructor(description) {
     Object.assign(this, { description })
   }

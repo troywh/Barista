@@ -2,8 +2,8 @@ import assert from "assert/strict"
 import analyze from "../src/analyzer.js"
 
 // const semanticChecks = [
-//   ["variables can be printed", "1 pump y print y"],
-//   ["variables can be reassigned", "1 pump y  y * 5 / ((-3) + y) pump y"],
+//   ["variables can be printed", "1 pumps y print y"],
+//   ["variables can be reassigned", "1 pumps y  y * 5 / ((-3) + y) pumps y"],
 //   [
 //     "all predefined identifiers",
 //     "print ln(sqrt(sin(cos(hypot(π,1) + exp(5.52)))))",
@@ -11,14 +11,14 @@ import analyze from "../src/analyzer.js"
 // ]
 
 const semanticChecks = [
-  ["variables can be printed", "1 pump y print y"],
-  ["variables can be reassigned", "1 pump y  y = y * 5 / ((-3) + y)"],
-  ["variable declarations", "1 pump y"],
+  ["variables can be printed", "1 pumps y print y"],
+  ["variables can be reassigned", "1 pumps y  y = y * 5 / ((-3) + y)"],
+  ["variable declarations", "1 pumps y"],
   ["functions with return value", "order f(pumps x) -> pumps {serve x * 2}"],
-  ["increment ", "1 pump y add 1 to y"],
+  ["increment ", "1 pumps y add 1 to y"],
   ["boolean", "yes x print x"],
   ["loops", "5 pumps count blend while count less than 10 { print count }"],
-  ["function with no return value", "order g(pump x) { print (1 * 2) }"],
+  ["function with no return value", "order g(pumps x) { print (1 * 2) }"],
   ["conditions", "if true { print 1 }"],
   ["loops with return statement", "blend while true { serve }"],
   ["function return true", "order g() -> bool {serve true}"],
@@ -43,27 +43,27 @@ const semanticErrors = [
   [
     "an undeclared var used as variable",
     "print sin + 1",
-    /Error: Identifier sin not declared/,
+    /Identifier sin not declared/,
   ],
   [
     "re-declared identifier",
-    "1 pump y 2 pump y",
+    "1 pumps y 2 pumps y",
     /Identifier y already declared/,
   ],
   [
     "an attempt to write a read-only var",
-    "yes = 3",
-    /The input did not match the regular expression/,
+    "3 pumps* x x = 3",
+    /Cannot assign to constant x/,
   ],
   [
     "too few arguments",
-    "order g(x,y) -> bool {serve true} g(1)",
-    /Expected 1 arg\(s\), found 0/,
+    "order g(pumps x, pumps y) -> bool {serve true} g(1)",
+    /Expected 2 arguments but got 1/,
   ],
   [
     "too many arguments",
     "order g() -> bool {serve true} g(1,2,3,4)",
-    /Expected 1 arg\(s\), found 2/,
+    /Expected 0 arguments but got 4/,
   ],
 ]
 

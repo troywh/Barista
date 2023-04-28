@@ -268,6 +268,9 @@ const optimizers = {
   String(e) {
     return e
   },
+  StringLiteral(e) {
+    return `"${e.contents}"`
+  },
   Number(e) {
     return e
   },

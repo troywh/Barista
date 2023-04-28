@@ -19,8 +19,8 @@ function mustNotAlreadyBeDeclared(context, name) {
   must(!context.sees(name), `Identifier ${name} already declared`)
 }
 
-function mustHaveBeenFound(entity, name) {
-  must(entity, `Identifier ${name} not declared`)
+function mustHaveBeenFound(entity, name, at) {
+  must(entity, `Identifier ${name} not declared`, at)
 }
 
 function mustHaveNumericType(e, at) {
@@ -75,6 +75,18 @@ function mustAllHaveSameType(expressions, at) {
     "Not all elements have the same type",
     at
   )
+}
+
+function mustHaveRightNumberOfArguments(args, params, at) {
+  must(
+    args.length === params.length,
+    `Expected ${params.length} arguments but got ${args.length}`,
+    at
+  )
+}
+
+function mustBeFunction(entity, at) {
+  must(entity instanceof core.Function, "Function expected", at)
 }
 
 function mustNotBeRecursive(struct, at) {
@@ -133,7 +145,7 @@ function mustBePrintableType(e) {
 }
 
 function mustNotBeReadOnly(e, at) {
-  must(!e.readOnly, `Cannot assign to constant ${e.name}`, at)
+  must(!e.readOnly, `Cannot assign to constant ${e.variable}`, at)
 }
 
 function fieldsMustBeDistinct(fields, at) {
@@ -230,7 +242,7 @@ class Context {
 
 // Throw an error message that takes advantage of Ohm's messaging
 function error(message, node) {
-  if (node) {
+  if (node && node.source) {
     throw new Error(`${node.source.getLineAndColumnMessage()}${message}`)
   }
   throw new Error(message)
@@ -262,16 +274,13 @@ export default function analyze(sourceCode) {
       )
     },
     Statement_vardec(expression, type, readonly, id) {
-      const iden = id.rep()
+      const iden = id.sourceString
       const t = type.rep()
       const expr = expression.rep()
-      if (readonly === "*") {
-        mustNotBeReadOnly(iden, id)
-      }
-
-      context.add(iden, expr)
-
-      return new core.VariableDeclaration(expr, t, readonly.rep(), iden)
+      readonly = readonly.rep().length !== 0
+      const variable = new core.VariableDeclaration(expr, t, readonly, iden)
+      context.add(iden, variable)
+      return variable
     },
     Statement_booldec(value, readonly, id) {
       const iden = id.rep()
@@ -280,7 +289,7 @@ export default function analyze(sourceCode) {
       return new core.VariableDeclaration(iden, BOOLEAN, readonly.rep(), val)
     },
     Statement_fundec(_order, id, paramList, type, block) {
-      const returnType = type.rep() ?? VOID
+      const returnType = type.rep()?.[0] ?? INT
       const iden = id.rep()
       const params = paramList.rep()
       const paramTypes = params.map((param) => param.type)
@@ -312,10 +321,11 @@ export default function analyze(sourceCode) {
     Block(_left, body, _right) {
       return body.rep()
     },
-
     Assignment_plain(id, _equals, expression) {
-      const variable = id.rep()
-      context.sees(variable)
+      const variable = id.sourceString
+      const entity = context.lookup(variable)
+      mustHaveBeenFound(entity, variable, id)
+      mustNotBeReadOnly(entity, id)
       return new core.AssignmentStatement(variable, expression.rep())
     },
     Assignment_increment(_add, expression, _to, id) {
@@ -369,7 +379,7 @@ export default function analyze(sourceCode) {
       //Not complete
       if (parent.sourceString !== "this") {
         const entity = context.lookup(parent.sourceString)
-        mustHaveBeenFound(entity, parent.sourceString)
+        mustHaveBeenFound(entity, parent.sourceString, id)
         return entity
         // TODO
       }
@@ -378,7 +388,7 @@ export default function analyze(sourceCode) {
     },
     Term_id(id) {
       const entity = context.lookup(id.sourceString)
-      mustHaveBeenFound(entity, id.sourceString)
+      mustHaveBeenFound(entity, id.sourceString, id)
       return entity
     },
     Term_parens(_left, expression, _right) {
@@ -386,16 +396,21 @@ export default function analyze(sourceCode) {
     },
 
     Call(id, _left, args, _right) {
-      return new core.Call(id.rep(), args.rep())
+      const entity = context.lookup(id.sourceString)
+      mustHaveBeenFound(entity, id.sourceString, id)
+      mustBeFunction(entity, id.sourceString)
+      const argsRep = args.rep()
+      mustHaveRightNumberOfArguments(argsRep, entity.type.paramTypes, id)
+      return new core.Call(entity, argsRep)
     },
     Param(type, id) {
-      return new core.Parameter(type, name)
+      return new core.Parameter(type.sourceString, id.sourceString)
     },
     Params(_left, list, _right) {
       return list.asIteration().children.map((p) => p.rep())
     },
-    Args(first, _comma, next) {
-      return new core.Arguments(first.rep(), next.rep())
+    Args(list) {
+      return list.asIteration().children.map((p) => p.rep())
     },
 
     Type(type) {

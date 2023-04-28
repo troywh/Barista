@@ -1,4 +1,4 @@
-order f(x) -> pumps {
+order f(pumps x) -> pumps {
     serve x * 2
 }
 

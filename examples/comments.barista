@@ -1,2 +1,3 @@
 <comment> This is a comment </comment>
 print "There is a comment in this code"
+print 1+1
