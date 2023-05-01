@@ -15,55 +15,56 @@ const fixtures = [
       add 1 to x
       add -1 to x
       yes y
-      y = 5 ** -x / -100 > -x or false
-      print((y and y) or false or (x*2) not equal 5)
+      y = 5 ** (-x) / (-100) greater than (-x) or false
+      print((y and y) or false or (x*2) not equal to 5)
     `,
     expected: dedent`
-      let x_1 = 21;
-      x_1++;
-      x_1--;
-      let y_2 = true;
-      y_2 = (((5 ** -(x_1)) / -(100)) > -(x_1));
-      console.log(((y_2 && y_2) || ((x_1 * 2) !== 5)));
-    `,
-  },
-  /*{
-    name: "if",
-    source: `
-      let x = 0;
-      if (x == 0) { print("1"); }
-      if (x == 0) { print(1); } else { print(2); }
-      if (x == 0) { print(1); } else if (x == 2) { print(3); }
-      if (x == 0) { print(1); } else if (x == 2) { print(3); } else { print(4); }
-    `,
-    expected: dedent`
-      let x_1 = 0;
-      if ((x_1 === 0)) {
-        console.log("1");
-      }
-      if ((x_1 === 0)) {
-        console.log(1);
-      } else {
-        console.log(2);
-      }
-      if ((x_1 === 0)) {
-        console.log(1);
-      } else {
-        if ((x_1 === 2)) {
-          console.log(3);
-        }
-      }
-      if ((x_1 === 0)) {
-        console.log(1);
-      } else
-        if ((x_1 === 2)) {
-          console.log(3);
-        } else {
-          console.log(4);
-        }
+      let x = 21;
+      x += 1;
+      x += -1;
+      let y = true;
+      y = (((5 ** -(x)) / -100) > -(x));
+      console.log(((y && y) || ((x * 2) !== 5)));
     `,
   },
   {
+    name: "if",
+    source: `
+      0 pumps x
+      if x equal to 0 { print "1" }
+      if x equal to 0 { print 1 } else { print 2 }
+      if x equal to 0 { print 1 } else if x equal to 2 { print 3 }
+      if x equal to 0 { print 1 } else if x equal to 2 { print 3 } else { print 4 }
+    `,
+    expected: dedent`
+      let x = 0;
+      if((x === 0)) {
+      console.log("1");
+      }
+      if((x === 0)) {
+      console.log(1);
+      }
+      else {
+      console.log(2);
+      }
+      if((x === 0)) {
+      console.log(1);
+      }
+      else if ((x === 2)) {
+      console.log(3);
+      }
+      if((x === 0)) {
+      console.log(1);
+      }
+      else if ((x === 2)) {
+      console.log(3);
+      }
+      else {
+      console.log(4);
+      }
+    `,
+  },
+  /*{
     name: "while",
     source: `
       let x = 0;

@@ -66,13 +66,12 @@ const optimizers = {
     e.valueType = optimize(e.valueType)
     return e
   },
-  IfStatement(s) {
+  Conditional(s) {
     s.test = optimize(s.test)
     s.consequent = optimize(s.consequent)
-    s.alternate = optimize(s.alternate)
+    s.alternates?.map((alt) => optimize(alt))
     for (let i = 0; i < s.test.length; i++) {
       if (s.test[i].constructor === Boolean && s.test[i]) {
-        // Ask Dr. Toal what to do if we have lots of else-ifs because we can't rely on recursion.
         return s.consequent[i]
       }
       if (
@@ -80,19 +79,10 @@ const optimizers = {
         s.test[i].constructor === Boolean &&
         !s.test[i]
       ) {
-        return s.alternate
+        return s.alternates
       }
     }
     return s
-  },
-  Conditional(e) {
-    e.test = optimize(e.test)
-    e.consequent = optimize(e.consequent)
-    e.alternate = optimize(e.alternate)
-    if (e.test.constructor === Boolean) {
-      return e.test ? e.consequent : e.alternate
-    }
-    return e
   },
   ForEachLoop(s) {
     s.variable = optimize(s.variable)
@@ -179,7 +169,8 @@ const optimizers = {
       if (["+", "-"].includes(e.op) && e.right === 0) return e.left
       else if (["*", "/"].includes(e.op) && e.right === 1) return e.left
       else if (e.op === "*" && e.right === 0) return 0
-      else if (e.op === "**" && e.right === 0) return 1 // TODO: What to do about %
+      else if (e.op === "**" && e.right === 0) return 1
+      else if (e.op === "%" && e.right === 0) return undefined
     }
     return e
   },

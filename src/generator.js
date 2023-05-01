@@ -7,19 +7,12 @@ import { Type } from "./core.js"
 
 export default function generate(program) {
   const output = []
-
-  // Variable and function names in JS will be suffixed with _1, _2, _3,
-  // etc. This is because "switch", for example, is a legal name in Carlos,
-  // but not in JS. So, the Carlos variable "switch" must become something
-  // like "switch_1". We handle this by mapping each name to its suffix.
   const targetName = ((mapping) => {
     return (entity) => {
       if (!mapping.has(entity)) {
         mapping.set(entity, mapping.size + 1)
       }
-      return `${entity.name ?? entity.description ?? entity.id}_${mapping.get(
-        entity
-      )}`
+      return `${entity.name ?? entity.description ?? entity.id}`
     }
   })(new Map())
 
@@ -80,20 +73,20 @@ export default function generate(program) {
     ShortReturnStatement(s) {
       output.push("return;")
     },
-    IfStatement(s) {
-      let e = ""
-      for (let i = 0; i < s.test.length; i++) {
-        output.push(`${e}if (${gen(s.test[i])}) {`)
-        gen(s.consequent[i])
-        if (i < s.test.length - 1) {
-          e = `} else `
-        }
+    Conditional(s) {
+      output.push(`if(${gen(s.test)}) {`)
+      gen(s.consequent)
+      output.push(`}`)
+      s.alternates.forEach((alt) => {
+        output.push(`else if (${gen(alt.test)}) {`)
+        gen(alt.consequent)
+        output.push(`}`)
+      })
+      if (s.final.length != 0) {
+        output.push(`else {`)
+        gen(s.final)
+        output.push(`}`)
       }
-      if (s.alternate.length > 0) {
-        output.push("} else {")
-        gen(s.alternate)
-      }
-      output.push("}")
     },
     WhileLoop(s) {
       output.push(`while (${gen(s.test)}) {`)
@@ -112,11 +105,6 @@ export default function generate(program) {
       output.push(`for (let ${gen(s.variable)} of ${gen(s.expression)}) {`)
       gen(s.body)
       output.push("}")
-    },
-    Conditional(e) {
-      return `((${gen(e.test)}) ? (${gen(e.consequent)}) : (${gen(
-        e.alternate
-      )}))`
     },
     BinaryExpression(e) {
       let op =

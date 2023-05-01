@@ -53,6 +53,12 @@ export class VariableDeclaration {
   }
 }
 
+export class Variable {
+  constructor(name, type, readOnly, value) {
+    Object.assign(this, { name, type, readOnly, value })
+  }
+}
+
 export class ClassDeclaration {
   constructor(name, body) {
     Object.assign(this, { name, body })

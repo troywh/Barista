@@ -145,7 +145,7 @@ function mustBePrintableType(e) {
 }
 
 function mustNotBeReadOnly(e, at) {
-  must(!e.readOnly, `Cannot assign to constant ${e.variable}`, at)
+  must(!e.readOnly, `Cannot assign to constant ${e.name}`, at)
 }
 
 function fieldsMustBeDistinct(fields, at) {
@@ -263,14 +263,14 @@ export default function analyze(sourceCode) {
       context.printable(arg)
       return new core.PrintStatement(arg)
     },
-    Statement_ifstmt(_if, test, consequent, elif, _else, alternate) {
+    Statement_ifstmt(_if, test, consequent, alternates, _else, final) {
       const tst = test.rep()
       mustHaveBooleanType(tst, test)
       return new core.Conditional(
         tst,
         consequent.rep(),
-        elif.rep(),
-        alternate.rep()
+        alternates.rep(),
+        final.rep()
       )
     },
     Statement_vardec(expression, type, readonly, id) {
@@ -278,15 +278,17 @@ export default function analyze(sourceCode) {
       const t = type.rep()
       const expr = expression.rep()
       readonly = readonly.rep().length !== 0
-      const variable = new core.VariableDeclaration(expr, t, readonly, iden)
+      const variable = new core.Variable(iden, t, readonly, expr)
       context.add(iden, variable)
-      return variable
+      return new core.VariableDeclaration(expr, t, readonly, iden)
     },
     Statement_booldec(value, readonly, id) {
       const iden = id.rep()
       const val = value.rep()
-      context.add(iden, val)
-      return new core.VariableDeclaration(val, BOOLEAN, readonly.rep(), iden)
+      readonly = readonly.rep().length !== 0
+      const variable = new core.Variable(iden, BOOLEAN, readonly, val)
+      context.add(iden, variable)
+      return new core.VariableDeclaration(val, BOOLEAN, readonly, iden)
     },
     Statement_fundec(_order, id, paramList, type, block) {
       const returnType = type.rep()?.[0] ?? INT
