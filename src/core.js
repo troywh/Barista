@@ -65,6 +65,12 @@ export class AssignmentStatement {
   }
 }
 
+export class IncrementStatement {
+  constructor(target, source) {
+    Object.assign(this, { target, source })
+  }
+}
+
 export class Call {
   constructor(callee, args) {
     Object.assign(this, { callee, args })

@@ -286,7 +286,7 @@ export default function analyze(sourceCode) {
       const iden = id.rep()
       const val = value.rep()
       context.add(iden, val)
-      return new core.VariableDeclaration(iden, BOOLEAN, readonly.rep(), val)
+      return new core.VariableDeclaration(val, BOOLEAN, readonly.rep(), iden)
     },
     Statement_fundec(_order, id, paramList, type, block) {
       const returnType = type.rep()?.[0] ?? INT
@@ -329,7 +329,11 @@ export default function analyze(sourceCode) {
       return new core.AssignmentStatement(variable, expression.rep())
     },
     Assignment_increment(_add, expression, _to, id) {
-      return new core.AssignmentStatement(id.rep(), expression.rep())
+      const variable = id.sourceString
+      const entity = context.lookup(variable)
+      mustHaveBeenFound(entity, variable, id)
+      mustNotBeReadOnly(entity, id)
+      return new core.IncrementStatement(variable, expression.rep())
     },
 
     Exp_unary(op, expression) {

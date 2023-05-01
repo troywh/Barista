@@ -65,8 +65,11 @@ export default function generate(program) {
     Function(f) {
       return targetName(f)
     },
-    Assignment(s) {
+    AssignmentStatement(s) {
       output.push(`${gen(s.target)} = ${gen(s.source)};`)
+    },
+    IncrementStatement(s) {
+      output.push(`${gen(s.target)} += ${gen(s.source)};`)
     },
     BreakStatement(s) {
       output.push("break;")
@@ -116,7 +119,17 @@ export default function generate(program) {
       )}))`
     },
     BinaryExpression(e) {
-      let op = { "==": "===", "!=": "!==", or: "||", and: "&&" }[e.op] ?? e.op
+      let op =
+        {
+          "equal to": "===",
+          "not equal to": "!==",
+          or: "||",
+          and: "&&",
+          "less than": "<",
+          "less than equal to": "<=",
+          "greater than": ">",
+          "greater than equal to": ">=",
+        }[e.op] ?? e.op
       return `(${gen(e.left)} ${op} ${gen(e.right)})`
     },
     UnaryExpression(e) {

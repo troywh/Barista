@@ -8,12 +8,17 @@ const optimizers = {
     p.statements = optimize(p.statements)
     return p
   },
-  Assignment(s) {
+  AssignmentStatement(s) {
     s.source = optimize(s.source)
     s.target = optimize(s.target)
     if (s.source === s.target) {
       return []
     }
+    return s
+  },
+  IncrementStatement(s) {
+    s.source = optimize(s.source)
+    s.target = optimize(s.target)
     return s
   },
   VariableDeclaration(d) {
@@ -157,12 +162,12 @@ const optimizers = {
         else if (e.op === "/") return e.left / e.right
         else if (e.op === "**") return e.left ** e.right
         else if (e.op === "%") return e.left % e.right
-        else if (e.op === "<") return e.left < e.right
-        else if (e.op === "<=") return e.left <= e.right
-        else if (e.op === "==") return e.left === e.right
-        else if (e.op === "!=") return e.left !== e.right
-        else if (e.op === ">=") return e.left >= e.right
-        else if (e.op === ">") return e.left > e.right
+        else if (e.op === "less than") return e.left < e.right
+        else if (e.op === "less than equal") return e.left <= e.right
+        else if (e.op === "equal to") return e.left === e.right
+        else if (e.op === "not equal to") return e.left !== e.right
+        else if (e.op === "greater than equal to") return e.left >= e.right
+        else if (e.op === "greater than") return e.left > e.right
       } else if (e.left === 0 && e.op === "+") return e.right
       else if (e.left === 1 && e.op === "*") return e.right
       else if (e.left === 0 && e.op === "-")
