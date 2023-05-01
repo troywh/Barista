@@ -39,9 +39,7 @@ export default function generate(program) {
       return `this["${targetName(f.variable)}"] = ${targetName(f.initializer)};`
     },
     FunctionDeclaration(d) {
-      output.push(
-        `function ${gen(d.fun)}(${gen(d.fun.parameters).join(", ")}) {`
-      )
+      output.push(`function ${gen(d.fun)}(${gen(d.params).join(", ")}) {`)
       gen(d.body)
       output.push("}")
     },
@@ -174,7 +172,7 @@ export default function generate(program) {
     Call(c) {
       const targetCode = `${gen(c.callee)}(${gen(c.args).join(", ")})`
       // Calls in expressions vs in statements are handled differently
-      if (c.callee instanceof Type || c.callee.type.returnType !== Type.NONE) {
+      if (c.callee instanceof Type || c.callee.type.returnType !== Type.VOID) {
         return targetCode
       }
       output.push(`${targetCode};`)

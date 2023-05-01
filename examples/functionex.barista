@@ -1,13 +1,13 @@
 order pumpLimitSingleDrink(pumps currentAmount, bool whip, bool more, bool extra) {
     blend while currentAmount not equal to 5 {
         if (askAboutMore("You can add more pumps, would you like more?", more)) {
-            add one to currentAmount
+            add 1 to currentAmount
         } else {
             stop
         }
     }
     if (whip and askAboutMore("Would you like extra on top?")) {
-        add one to currentAmount
+        add 1 to currentAmount
     }
     serve "Your order is ready"
 }

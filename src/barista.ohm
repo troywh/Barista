@@ -47,10 +47,11 @@ Barista {
               | id                                      -- id
               | "(" Exp ")"                             -- parens
 
-  Call        = id "(" Args ")"
+  Call        = id Args
   Params      = "(" ListOf<Param, ","> ")"
   Param       = Type id
-  Args        = ListOf<(Exp | strlit), ",">
+  Args        = "(" ListOf<Arg, ","> ")"
+  Arg         = (Exp | strlit)
   BoolVal     = (true | false)
   
   Type	      = id | bool

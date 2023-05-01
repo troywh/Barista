@@ -10,6 +10,7 @@ export class Type {
   static INT = "pumps"
   static STRING = "string"
   static BOOLEAN = "boolean"
+  static VOID = "void"
   constructor(description) {
     Object.assign(this, { description })
   }
@@ -84,8 +85,8 @@ export class BreakStatement {
 }
 
 export class ReturnStatement {
-  constructor() {
-    Object.assign(this)
+  constructor(expression) {
+    Object.assign(this, { expression })
   }
 }
 

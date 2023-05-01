@@ -257,7 +257,7 @@ const optimizers = {
     return d
   },
   Parameter(p) {
-    p.id = optimize(p.id)
+    p.name = optimize(p.name)
     return p
   },
   Variable(v) {

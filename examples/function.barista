@@ -3,5 +3,5 @@ order f(pumps x) -> pumps {
 }
 
 order g() {
-    print (2 + f(2))
+    print (2 + f(1))
 }

@@ -196,7 +196,7 @@ function mustBeReturnable({ expression: e, from: f }, at) {
 function argumentsMustMatch(args, targetTypes, at) {
   must(
     targetTypes.length === args.length,
-    `${targetTypes.length} argument(s) required but ${args.length} passed`,
+    `Expected ${targetTypes.length} arguments but got ${args.length}`,
     at
   )
   targetTypes.forEach((type, i) => mustBeAssignable(args[i], { toType: type }))
@@ -291,7 +291,7 @@ export default function analyze(sourceCode) {
       return new core.VariableDeclaration(val, BOOLEAN, readonly, iden)
     },
     Statement_fundec(_order, id, paramList, type, block) {
-      const returnType = type.rep()?.[0] ?? INT
+      const returnType = type?.rep()[0] ?? VOID
       const iden = id.rep()
       const params = paramList.rep()
       const paramTypes = params.map((param) => param.type)
@@ -415,12 +415,15 @@ export default function analyze(sourceCode) {
       return expression.rep()
     },
 
-    Call(id, _left, args, _right) {
+    Call(id, args) {
       const entity = context.lookup(id.sourceString)
+      const argsRep = args.rep()
       mustHaveBeenFound(entity, id.sourceString, id)
       mustBeFunction(entity, id.sourceString)
-      const argsRep = args.rep()
       mustHaveRightNumberOfArguments(argsRep, entity.type.paramTypes, id)
+      if (entity.params > 0) {
+        argumentsMustMatch(argsRep, entity.type.paramTypes, id)
+      }
       return new core.Call(entity, argsRep)
     },
     Param(type, id) {
@@ -429,7 +432,7 @@ export default function analyze(sourceCode) {
     Params(_left, list, _right) {
       return list.asIteration().children.map((p) => p.rep())
     },
-    Args(list) {
+    Args(_left, list, _right) {
       return list.asIteration().children.map((p) => p.rep())
     },
 

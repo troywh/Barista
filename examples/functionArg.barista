@@ -1,0 +1,8 @@
+1 pumps z
+order f(pumps x, pumps y) {
+    print x greater than equal to y
+}
+order g()->pumps {
+    serve 2
+}
+f(z, g())
