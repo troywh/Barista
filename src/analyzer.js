@@ -316,7 +316,12 @@ export default function analyze(sourceCode) {
       return new core.WhileLoop(expr, block)
     },
     Statement_dowhile(_blend, body, _until, test) {
-      return new core.DoWhileLoop(test.rep(), body.rep())
+      const expr = test.rep()
+      mustHaveBooleanType(expr, { at: test })
+      context = context.newChildContext({ inLoop: true })
+      const block = body.rep()
+      context = context.parent
+      return new core.DoWhileLoop(expr, block)
     },
     Statement_break(breakKeyword) {
       mustBeInLoop(context, { at: breakKeyword })

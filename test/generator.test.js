@@ -91,6 +91,25 @@ const fixtures = [
       }
     `,
   },
+  {
+    name: "dowhile",
+    source: `
+      5 pumps max
+      0 pumps count
+      blend {
+        add 1 to count
+        print count
+      } until count greater than max
+    `,
+    expected: dedent`
+      let max = 5;
+      let count = 0;
+      do {
+        count += 1;
+        console.log(count);
+      } while (!(count > max));
+    `,
+  },
   /*{
     name: "functions",
     source: `

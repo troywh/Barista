@@ -102,6 +102,14 @@ const optimizers = {
     s.body = optimize(s.body)
     return s
   },
+  DoWhileLoop(s) {
+    s.test = optimize(s.test)
+    if (s.test === false) {
+      return []
+    }
+    s.body = optimize(s.body)
+    return s
+  },
   ForLoop(s) {
     s.variable = optimize(s.variable)
     s.start = optimize(s.start)

@@ -89,6 +89,11 @@ export default function generate(program) {
       gen(s.body)
       output.push("}")
     },
+    DoWhileLoop(s) {
+      output.push(`do {`)
+      gen(s.body)
+      output.push(`} while (!${gen(s.test)});`)
+    },
     ForLoop(s) {
       const i = targetName(s.variable)
       output.push(

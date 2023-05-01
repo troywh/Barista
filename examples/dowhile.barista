@@ -1,0 +1,6 @@
+5 pumps max
+0 pumps count
+blend {
+    print count
+    add 1 to count
+} until count greater than max

@@ -18,6 +18,10 @@ const semanticChecks = [
   ["increment ", "1 pumps y add 1 to y"],
   ["boolean", "yes x x = no print x"],
   ["loops", "5 pumps count blend while count less than 10 { print count }"],
+  [
+    "post-test loops",
+    "5 pumps count blend { add 1 to count } until count equal to 10",
+  ],
   ["function with no return value", "order g(pumps x) { print (1 * 2) }"],
   ["conditions", "yes x if x { print 1 }"],
   ["loops with return statement", "blend while true { serve }"],
