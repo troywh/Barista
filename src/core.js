@@ -77,19 +77,31 @@ export class IncrementStatement {
   }
 }
 
+export class BreakStatement {
+  constructor() {
+    Object.assign(this)
+  }
+}
+
+export class ReturnStatement {
+  constructor() {
+    Object.assign(this)
+  }
+}
+
 export class Call {
   constructor(callee, args) {
     Object.assign(this, { callee, args })
   }
 }
 
-export class WhileStatement {
+export class WhileLoop {
   constructor(test, body) {
     Object.assign(this, { test, body })
   }
 }
 
-export class DoWhileStatement {
+export class DoWhileLoop {
   constructor(test, body) {
     Object.assign(this, { test, body })
   }

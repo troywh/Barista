@@ -1,0 +1,10 @@
+0 pumps x
+blend while x less than 5 {
+    0 pumps y
+    blend while y less than 5 {
+        print x * y
+        add 1 to y
+        stop
+    }
+    add 1 to x
+}

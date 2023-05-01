@@ -2,7 +2,7 @@ Barista {
   Program   = Statement+
   Statement = Assignment
             | Call
-            | stop
+            | stop                                      -- break
             | serve (Exp | strlit)?										  -- return
             | print (Exp | strlit)                      -- print
             | if Exp Block ElIf* (else Block)?          -- ifstmt

@@ -64,34 +64,34 @@ const fixtures = [
       }
     `,
   },
-  /*{
+  {
     name: "while",
     source: `
-      let x = 0;
-      while x < 5 {
-        let y = 0;
-        while y < 5 {
-          print(x * y);
-          y = y + 1;
-          break;
+      0 pumps x
+      blend while x less than 5 {
+        0 pumps y
+        blend while y less than 5 {
+          print x * y
+          add 1 to y
+          stop
         }
-        x = x + 1;
+        add 1 to x
       }
     `,
     expected: dedent`
-      let x_1 = 0;
-      while ((x_1 < 5)) {
-        let y_2 = 0;
-        while ((y_2 < 5)) {
-          console.log((x_1 * y_2));
-          y_2 = (y_2 + 1);
-          break;
-        }
-        x_1 = (x_1 + 1);
+      let x = 0;
+      while ((x < 5)) {
+      let y = 0;
+      while ((y < 5)) {
+      console.log((x * y));
+      y += 1;
+      break;
+      }
+      x += 1;
       }
     `,
   },
-  {
+  /*{
     name: "functions",
     source: `
       let z = 0.5;
